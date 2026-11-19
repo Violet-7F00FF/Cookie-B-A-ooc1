@@ -129,6 +129,7 @@ textarea:focus{outline:none;border-color:var(--ink)}
 .subbox b{white-space:nowrap;font-weight:700;color:var(--sc)}
 .subbox .sl{font-size:10px;color:var(--sub);font-weight:600;white-space:nowrap}
 .subbox span:last-child{color:#3a3e46}
+.subbox.none span:last-child{color:var(--faint)}
 .tdesc{font-size:13px;margin-top:8px;color:#3a3e46}
 
 .tblk{margin-top:20px;padding:16px 0 0;border-top:1px solid var(--line2)}
@@ -291,7 +292,7 @@ html.capture .rh h1{font-size:34px}
 - 설정·대화·행동을 근거로 판정하고, 말과 행동이 다르면 행동을 우선. 미화·과장 금지
 - 5축(1~5점): 점화=마음이 붙는 속도 / 최고온도=감정의 최대 강도 / 지속력=온도 유지력 / 표현=속마음이 드러나는 정도 / 독점욕=상대를 혼자 갖고 싶은 정도
 - 유형: 불꽃형(빠르고 뜨겁게 다 드러냄), 폭죽형(빨리 붙고 빨리 식음), 장작형(늦게 붙고 오래 감), 촛불형(잔잔함, 편안함 우선), 냉각형(거리 두고 감정을 숨김), 휴화산형(겉은 차갑고 속은 뜨거움)
-- 부유형은 필요할 때만 쓰고, 없으면 부유형과 부유형설명을 비울 것
+- 부유형도 위 6개 유형 중에서만 고르고, 필요 없으면 부유형과 부유형설명을 비울 것
 - 대표색: 캐릭터 상징색 #RRGGBB
 - 체온·곡선: 34~42 숫자(36.5 평온, 38~40 열애)
 - 아래 양식을 코드블록 안에 그대로 출력. 항목명 변경과 별표 금지, 여러 개는 / 로 구분
@@ -433,9 +434,13 @@ function score(v){
 function typeOf(v){
   const s = String(v||'').replace(/\s/g,'');
   if(!s) return null;
-  for(const a in TYPE_ALIAS) if(s.includes(a)) return {key:TYPE_ALIAS[a], ...TYPES[TYPE_ALIAS[a]]};
-  for(const k in TYPES) if(s.includes(k.replace('형',''))) return {key:k, ...TYPES[k]};
-  return {key:s, emoji:'🌡️', en:'UNCLASSIFIED', color:'#6a707a', desc:''};
+  // 문장 안에서 가장 먼저 나오는 유형 이름을 고름 (예: "헌신형(장작형에 가까움)"은 목록 밖 유형으로 처리)
+  let best=null, at=Infinity;
+  const cands = [...Object.keys(TYPES).map(k=>[k.replace('형',''),k]), ...Object.entries(TYPE_ALIAS)];
+  for(const [w,k] of cands){ const i=s.indexOf(w); if(i>=0 && i<at){ at=i; best=k; } }
+  const head = (s.match(/^[^(（\[/,·]+/)||[s])[0];
+  if(best && at < head.length) return {key:best, ...TYPES[best]};
+  return {key:head, emoji:'🌡️', en:'CUSTOM', color:'#6a707a', desc:''};
 }
 function gradeIdx(v){ const s=String(v||'').replace(/\s/g,''); return GRADES.findIndex(g=>s.includes(g.k)); }
 function hash(s){ let h=0; for(const c of s) h=(h*31 + c.codePointAt(0))>>>0; return h.toString(16).toUpperCase().padStart(8,'0').slice(-4); }
@@ -459,7 +464,7 @@ function subject(d, who){
     <p class="one">${esc(d.한줄요약||'')}</p>
     <div class="typeline"><span class="pill">${t.emoji} ${esc(t.key)} <em>${t.en}</em></span></div>
     <p class="tdesc">${t.desc||''}</p>
-    <div class="subrow">${sub && sub.key!==t.key ? `<div class="subbox" style="--sc:${sub.color}"><span class="sl">부유형</span><b>${sub.emoji} ${esc(sub.key)}</b><span>${esc(subDesc)}</span></div>` : ''}</div>
+    <div class="subrow">${sub && sub.key!==t.key ? `<div class="subbox" style="--sc:${sub.color}"><span class="sl">부유형</span><b>${sub.emoji} ${esc(sub.key)}</b><span>${esc(subDesc)}</span></div>` : `<div class="subbox none"><span class="sl">부유형</span><span>없음</span></div>`}</div>
     <div class="tblk"><div class="trow">
         <div><div class="tlab">체온</div><div class="tval"><span data-count="${temp}" data-from="34" data-dec="1">${temp.toFixed(1)}</span><small class="u">℃</small></div></div>
         <div class="tstate">${esc(d.체온상태||'')}</div>
