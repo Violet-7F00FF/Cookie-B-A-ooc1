@@ -111,7 +111,7 @@ textarea:focus{outline:none;border-color:var(--ink)}
 .subjects{display:grid;grid-template-columns:1fr 1fr;column-gap:40px}
 .subj{display:flex;flex-direction:column;min-width:0}
 @supports (grid-template-rows:subgrid){
-  .subj{display:grid;grid-row:span 11;grid-template-rows:subgrid;row-gap:0}
+  .subj{display:grid;grid-row:span 12;grid-template-rows:subgrid;row-gap:0}
 }
 .subj .tdesc:empty,.subj .subrow:empty{margin:0;padding:0}
 .ax.first{margin-top:18px}
@@ -289,7 +289,7 @@ html.capture .rh h1{font-size:34px}
           <summary>OOC 전문 보기</summary>
 <pre class="ooc" id="oocText">*OOC: 이전 롤플레잉을 중단하고, 새로운 시점에서 에피소드를 시작한다. 아래를 따라 PC와 NPC의 연애 온도를 진단한다.
 - 설정·대화·행동을 근거로 판정하고, 말과 행동이 다르면 행동을 우선. 미화·과장 금지
-- 4축(1~5점): 점화=마음이 붙는 속도 / 최고온도=감정의 최대 강도 / 지속력=온도 유지력 / 표현=속마음이 드러나는 정도
+- 5축(1~5점): 점화=마음이 붙는 속도 / 최고온도=감정의 최대 강도 / 지속력=온도 유지력 / 표현=속마음이 드러나는 정도 / 독점욕=상대를 혼자 갖고 싶은 정도
 - 유형: 불꽃형(빠르고 뜨겁게 다 드러냄), 폭죽형(빨리 붙고 빨리 식음), 장작형(늦게 붙고 오래 감), 촛불형(잔잔함, 편안함 우선), 냉각형(거리 두고 감정을 숨김), 휴화산형(겉은 차갑고 속은 뜨거움)
 - 부유형은 필요할 때만 쓰고, 없으면 부유형과 부유형설명을 비울 것
 - 대표색: 캐릭터 상징색 #RRGGBB
@@ -306,6 +306,7 @@ html.capture .rh h1{font-size:34px}
 최고온도: 점수 | 근거
 지속력: 점수 | 근거
 표현: 점수 | 근거
+독점욕: 점수 | 근거
 유형:
 부유형:
 부유형설명: 부유형이 드러나는 순간 한 줄
@@ -385,7 +386,7 @@ const GRADES = [
   {k:'따뜻',   name:'따뜻함',      en:'WARM',     color:'#e07f2f'},
   {k:'뜨거',   name:'뜨거움',      en:'HOT',      color:'#d6402f'},
 ];
-const AXES = [['점화','점화'],['최고온도','최고 온도'],['지속력','지속력'],['표현','표현']];
+const AXES = [['점화','점화'],['최고온도','최고 온도'],['지속력','지속력'],['표현','표현'],['독점욕','독점욕']];
 
 /* ───────── 유틸 ───────── */
 const $ = s => document.querySelector(s);
@@ -451,7 +452,7 @@ function subject(d, who){
   const axes = AXES.map(([k,l],i)=>{ const s=score(d[k]); return `
     <div class="ax${i===0?' first':''}"><div class="l">${l}</div><div class="bar"><i style="--w:${s.n/5*100}%;--i:${i}"></i></div><div class="n">${fmt(s.n)}</div>
     <div class="why">${esc(s.why)}</div></div>`; }).join('');
-  // 아래 11줄이 두 사람 카드에서 같은 높이로 맞춰져요 (줄이 없으면 빈 칸으로 자리만 차지)
+  // 아래 12줄이 두 사람 카드에서 같은 높이로 맞춰져요 (줄이 없으면 빈 칸으로 자리만 차지)
   return `
   <div class="subj" style="--role:var(--${who});--roleT:var(--${who}T);--c:${t.color};--ct:${tint(t.color,.08)}">
     <div class="subj-h"><span class="nm">${esc(d.이름||'')}</span></div>
@@ -473,29 +474,33 @@ function subject(d, who){
 }
 
 function radarSVG(a, b, ca, cb){
-  const C=150, R=100, ang=i=>-Math.PI/2 + i*Math.PI/2;
+  const n=AXES.length, C=150, R=96, ang=i=>-Math.PI/2 + i*2*Math.PI/n;
   const pt=(i,v)=>[C+Math.cos(ang(i))*R*v/5, C+Math.sin(ang(i))*R*v/5];
-  const poly=vals=>vals.map((v,i)=>pt(i,v).map(n=>n.toFixed(1)).join(',')).join(' ');
+  const poly=vals=>vals.map((v,i)=>pt(i,v).map(x=>x.toFixed(1)).join(',')).join(' ');
   const F='Pretendard,Apple SD Gothic Neo,Malgun Gothic,sans-serif';
   let g='';
-  for(let r=1;r<=5;r++) g+=`<polygon points="${poly([r,r,r,r])}" fill="none" stroke="${r===5?'#cfd3d8':'#e8eaed'}" stroke-width="1"/>`;
-  for(let i=0;i<4;i++){ const [x,y]=pt(i,5); g+=`<line x1="${C}" y1="${C}" x2="${x}" y2="${y}" stroke="#e8eaed" stroke-width="1"/>`; }
-  [['점화',C,32,'middle'],['최고 온도',C+R+10,C+4,'start'],['지속력',C,C+R+22,'middle'],['표현',C-R-10,C+4,'end']]
-    .forEach(([t,x,y,an])=>{ g+=`<text x="${x}" y="${y}" text-anchor="${an}" font-size="12" font-weight="600" fill="#15171c" font-family="${F}">${t}</text>`; });
+  for(let r=1;r<=5;r++) g+=`<polygon points="${poly(Array(n).fill(r))}" fill="none" stroke="${r===5?'#cfd3d8':'#e8eaed'}" stroke-width="1"/>`;
+  for(let i=0;i<n;i++){ const [x,y]=pt(i,5); g+=`<line x1="${C}" y1="${C}" x2="${x}" y2="${y}" stroke="#e8eaed" stroke-width="1"/>`; }
+  AXES.forEach(([,label],i)=>{
+    const c=Math.cos(ang(i)), sn=Math.sin(ang(i));
+    const x=C+c*(R+12), y=C+sn*(R+12)+4+(sn<-.9?-4:sn>.3?8:0);
+    const an=c>.2?'start':c<-.2?'end':'middle';
+    g+=`<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="${an}" font-size="12" font-weight="600" fill="#15171c" font-family="${F}">${label}</text>`;
+  });
   g+=`<polygon class="poly" points="${poly(a)}" fill="${ca}" fill-opacity="0.14" stroke="${ca}" stroke-width="2" stroke-linejoin="round"/>`;
   g+=`<polygon class="poly n" points="${poly(b)}" fill="${cb}" fill-opacity="0.14" stroke="${cb}" stroke-width="2" stroke-linejoin="round"/>`;
-  return `<svg class="radar" viewBox="-30 0 360 300" width="300" height="250">${g}</svg>`;
+  return `<svg class="radar" viewBox="-30 20 360 270" width="300" height="225">${g}</svg>`;
 }
 
 function curveSVG(pc, npc, ca, cb){
-  const W=800,H=280,L=44,Rp=24,T=20,B=40, iw=W-L-Rp, ih=H-T-B;
+  const W=800,H=280,L=44,Rp=58,T=20,B=40, iw=W-L-Rp, ih=H-T-B;
   const X=i=>L+i*iw/2, Y=t=>T+(42-clamp(t,34,42))/8*ih;
   const F='IBM Plex Mono,Menlo,monospace', FK='Pretendard,Apple SD Gothic Neo,Malgun Gothic,sans-serif';
   let g=`<rect x="${L}" y="${T}" width="${iw}" height="${Y(40)-T}" fill="#d2453b" fill-opacity="0.05"/>`;
   for(let t=34;t<=42;t+=2){ g+=`<line x1="${L}" x2="${W-Rp}" y1="${Y(t)}" y2="${Y(t)}" stroke="#eceef1" stroke-width="1"/><text x="${L-8}" y="${Y(t)+4}" text-anchor="end" font-size="11" fill="#a0a6ae" font-family="${F}">${t}</text>`; }
   g+=`<line x1="${L}" x2="${W-Rp}" y1="${Y(36.5)}" y2="${Y(36.5)}" stroke="#a0a6ae" stroke-width="1" stroke-dasharray="3 4"/>`;
-  g+=`<text x="${(X(0)+X(1))/2}" y="${Y(36.5)+15}" text-anchor="middle" font-size="11" fill="#a0a6ae" font-family="${FK}">평온 36.5</text>`;
-  g+=`<text x="${L+8}" y="${T+15}" font-size="11" fill="#d2453b" font-family="${FK}">위험 구간</text>`;
+  g+=`<text x="${W-Rp+12}" y="${Y(36.5)+4}" font-size="11" fill="#a0a6ae" font-family="${FK}">평온</text>`;
+  g+=`<text x="${W-Rp+12}" y="${(T+Y(40))/2+4}" font-size="11" fill="#d2453b" font-family="${FK}">위험</text>`;
   ['시작','중반','장기'].forEach((t,i)=>{ g+=`<text x="${X(i)}" y="${H-12}" text-anchor="${i===0?'start':i===2?'end':'middle'}" font-size="12" font-weight="600" fill="#15171c" font-family="${FK}">${t}</text>`; });
   const path=p=>{ const dx=iw/2; let d=`M${X(0)} ${Y(p[0])}`; for(let i=1;i<3;i++) d+=` C${X(i-1)+dx/2} ${Y(p[i-1])} ${X(i)-dx/2} ${Y(p[i])} ${X(i)} ${Y(p[i])}`; return d; };
   const dots=(p,c,o,top)=>p.map((v,i)=>{ const up = v>o[i] || (v===o[i] && top); const an=i===0?'start':i===2?'end':'middle';
@@ -599,7 +604,7 @@ function render(text, opt={}){
       <dl class="rh-meta">
         <div class="span2"><dt>피검자</dt><dd><span class="a">${nName}</span><span class="x">×</span><span class="b">${pName}</span></dd></div>
         <div><dt>발급일</dt><dd class="mono">${issued}</dd></div>
-        <div><dt>측정 항목</dt><dd>4축 · 체온 · 곡선</dd></div>
+        <div><dt>측정 항목</dt><dd>5축 · 체온 · 곡선</dd></div>
       </dl>
       <div class="summary">
         ${sumCell(N, tN, tB, 'npc')}
@@ -614,7 +619,7 @@ function render(text, opt={}){
     </section>
 
     <section class="sec reveal">
-      ${sh('02','4축 비교','AXIS COMPARISON')}
+      ${sh('02','5축 비교','AXIS COMPARISON')}
       <div class="cmpwrap">
         ${radarSVG(sN, sP, mN, mP)}
         <div>
