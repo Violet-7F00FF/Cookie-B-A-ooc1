@@ -21,6 +21,7 @@
 body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh}
 [hidden]{display:none!important}
 .mono{font-family:var(--mono)}
+.u{font-family:var(--sans)!important;font-weight:600;margin-left:1px}
 
 /* ── top bar ── */
 .top{max-width:920px;margin:0 auto;padding:32px 20px 0;display:flex;justify-content:space-between;align-items:center;gap:12px}
@@ -107,6 +108,13 @@ textarea:focus{outline:none;border-color:var(--ink)}
 .sh h2{font-size:18px;font-weight:800;letter-spacing:-.02em}
 .sh .en{margin-left:auto;font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--faint)}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:40px}
+.subjects{display:grid;grid-template-columns:1fr 1fr;column-gap:40px}
+.subj{display:flex;flex-direction:column;min-width:0}
+@supports (grid-template-rows:subgrid){
+  .subj{display:grid;grid-row:span 11;grid-template-rows:subgrid;row-gap:0}
+}
+.subj .tdesc:empty,.subj .subrow:empty{margin:0;padding:0}
+.ax.first{margin-top:18px}
 
 /* subject */
 .subj-h{display:flex;align-items:center;gap:10px}
@@ -123,7 +131,8 @@ textarea:focus{outline:none;border-color:var(--ink)}
 .subbox span:last-child{color:#3a3e46}
 .tdesc{font-size:13px;margin-top:8px;color:#3a3e46}
 
-.tblk{margin-top:20px;padding:16px 0 4px;border-top:1px solid var(--line2)}
+.tblk{margin-top:20px;padding:16px 0 0;border-top:1px solid var(--line2)}
+.tscalewrap{padding-bottom:4px}
 .trow{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
 .tlab{font-size:12px;color:var(--sub)}
 .tval{font-family:var(--mono);font-size:30px;font-weight:600;color:var(--c);letter-spacing:-.02em;line-height:1.1}
@@ -143,13 +152,14 @@ textarea:focus{outline:none;border-color:var(--ink)}
 .tzones{display:flex;justify-content:space-between;font-size:10px;color:var(--faint);margin-top:0}
 
 .axes{margin-top:18px}
-.ax{display:grid;grid-template-columns:64px 1fr 28px;gap:12px;align-items:center;padding:9px 0 0}
+.ax{display:grid;grid-template-columns:64px 1fr 28px;gap:12px;align-items:center;align-content:start;padding:9px 0 0;border-bottom:1px solid var(--line2)}
 .ax .l{font-size:13px;font-weight:600}
 .bar{height:6px;background:var(--line2);border-radius:3px;overflow:hidden}
 .bar i{display:block;height:100%;width:var(--w);background:var(--role);border-radius:3px;transform:scaleX(0);transform-origin:left;transition:transform 1s cubic-bezier(.2,.8,.2,1);transition-delay:calc(.4s + var(--i)*.1s)}
 .in .bar i{transform:scaleX(1)}
 .ax .n{font-family:var(--mono);font-size:13px;font-weight:600;text-align:right}
-.ax .why{grid-column:1/-1;font-size:12px;color:var(--sub);padding:2px 0 8px;border-bottom:1px solid var(--line2)}
+.ax .why{grid-column:1/-1;font-size:12px;color:var(--sub);padding:2px 0 8px}
+.tblk,.tscalewrap,.subrow{align-self:stretch}
 
 /* compare */
 .cmpwrap{display:grid;grid-template-columns:280px 1fr;gap:40px;align-items:center}
@@ -162,7 +172,9 @@ table{width:100%;border-collapse:collapse}
 .tbl thead th{font-size:11px;font-weight:600;color:var(--sub);background:var(--line2);border-bottom:none}
 .tbl thead th:first-child{border-radius:6px 0 0 6px} .tbl thead th:last-child{border-radius:0 6px 6px 0}
 .tbl tbody th{font-weight:700;white-space:nowrap}
-.tbl .num{font-family:var(--mono);text-align:right;width:70px}
+.tbl .num{font-family:var(--sans);font-variant-numeric:tabular-nums;text-align:center;width:26%}
+.tbl .num.dif{width:16%}
+.tbl tbody .num{font-size:14px;font-weight:600}
 .tbl .pcc{color:var(--pcT)} .tbl .npcc{color:var(--npcT)}
 .legend{display:flex;gap:16px;font-size:12px;color:var(--sub);margin-bottom:12px}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
@@ -172,6 +184,13 @@ table{width:100%;border-collapse:collapse}
 /* evidence */
 .ev h4,.rx h4{font-size:13px;font-weight:700;color:var(--roleT);margin-bottom:8px}
 .ev ol{list-style:none}
+.evg{display:grid;grid-template-columns:1fr 1fr;column-gap:40px}
+@supports (grid-template-rows:subgrid){
+  .evg .ev{display:grid;grid-template-rows:subgrid;row-gap:0}
+  .evg .ev ol{display:contents}
+}
+.ev li.blank{border-bottom:none}
+.ev li.blank::before{content:''}
 .ev li{display:grid;grid-template-columns:28px 1fr;gap:6px;padding:10px 0;border-bottom:1px solid var(--line2);font-size:13.5px;opacity:0;transform:translateY(6px);transition:opacity .5s,transform .5s;transition-delay:calc(.2s + var(--i)*.12s)}
 .ev li::before{content:attr(data-n);font-family:var(--mono);font-size:11px;color:var(--faint);padding-top:2px}
 .in .ev li{opacity:1;transform:none}
@@ -217,7 +236,11 @@ table{width:100%;border-collapse:collapse}
 
 @media (max-width:760px){
   .sheet{padding:32px 22px 28px}
-  .g2,.cmpwrap,.summary{grid-template-columns:1fr;gap:28px}
+  .g2,.cmpwrap,.summary,.subjects{grid-template-columns:1fr;gap:28px}
+  .subjects{row-gap:0}
+  .evg{grid-template-columns:1fr}
+  .evg .ev+.ev h4{margin-top:28px}
+  .subj+.subj .subj-h{margin-top:36px}
   .summary{gap:0} .summary>div+div{border-left:none;border-top:1px solid var(--line)}
   .rh-meta{grid-template-columns:1fr 1fr}
   .rh-meta div:nth-child(3){padding-left:0;border-left:none}
@@ -231,6 +254,10 @@ html.final *,html.final *::before,html.final *::after{transition:none!important;
 /* PNG 저장 시 항상 데스크톱 레이아웃 */
 html.capture .sheet{width:880px;padding:56px 56px 36px;border:none;border-radius:0;box-shadow:none}
 html.capture .g2{grid-template-columns:1fr 1fr;gap:40px}
+html.capture .subjects{grid-template-columns:1fr 1fr;column-gap:40px}
+html.capture .subj+.subj .subj-h{margin-top:0}
+html.capture .evg{grid-template-columns:1fr 1fr}
+html.capture .evg .ev+.ev h4{margin-top:0}
 html.capture .cmpwrap{grid-template-columns:280px 1fr;gap:40px}
 html.capture .summary{grid-template-columns:1fr 1fr 1fr}
 html.capture .summary>div+div{border-left:1px solid var(--line);border-top:none}
@@ -422,25 +449,26 @@ function subject(d, who){
   const zones = ZONES.map(([a,b,c])=>`<span style="width:${(b-a)/8*100}%;background:${c}"></span>`).join('');
   const ticks = [34,36.5,38,40,42].map(v=>`<span style="left:${pctT(v)}%">${v}</span>`).join('');
   const axes = AXES.map(([k,l],i)=>{ const s=score(d[k]); return `
-    <div class="ax"><div class="l">${l}</div><div class="bar"><i style="--w:${s.n/5*100}%;--i:${i}"></i></div><div class="n">${fmt(s.n)}</div>
+    <div class="ax${i===0?' first':''}"><div class="l">${l}</div><div class="bar"><i style="--w:${s.n/5*100}%;--i:${i}"></i></div><div class="n">${fmt(s.n)}</div>
     <div class="why">${esc(s.why)}</div></div>`; }).join('');
+  // 아래 11줄이 두 사람 카드에서 같은 높이로 맞춰져요 (줄이 없으면 빈 칸으로 자리만 차지)
   return `
-  <div style="--role:var(--${who});--roleT:var(--${who}T);--c:${t.color};--ct:${tint(t.color,.08)}">
+  <div class="subj" style="--role:var(--${who});--roleT:var(--${who}T);--c:${t.color};--ct:${tint(t.color,.08)}">
     <div class="subj-h"><span class="nm">${esc(d.이름||'')}</span></div>
     <p class="one">${esc(d.한줄요약||'')}</p>
     <div class="typeline"><span class="pill">${t.emoji} ${esc(t.key)} <em>${t.en}</em></span></div>
-    ${t.desc?`<p class="tdesc">${t.desc}</p>`:''}
-    ${sub && sub.key!==t.key ? `<div class="subbox" style="--sc:${sub.color}"><span class="sl">부유형</span><b>${sub.emoji} ${esc(sub.key)}</b><span>${esc(subDesc)}</span></div>` : ''}
-    <div class="tblk">
-      <div class="trow">
-        <div><div class="tlab">체온</div><div class="tval"><span data-count="${temp}" data-from="34" data-dec="1">${temp.toFixed(1)}</span><small>℃</small></div></div>
+    <p class="tdesc">${t.desc||''}</p>
+    <div class="subrow">${sub && sub.key!==t.key ? `<div class="subbox" style="--sc:${sub.color}"><span class="sl">부유형</span><b>${sub.emoji} ${esc(sub.key)}</b><span>${esc(subDesc)}</span></div>` : ''}</div>
+    <div class="tblk"><div class="trow">
+        <div><div class="tlab">체온</div><div class="tval"><span data-count="${temp}" data-from="34" data-dec="1">${temp.toFixed(1)}</span><small class="u">℃</small></div></div>
         <div class="tstate">${esc(d.체온상태||'')}</div>
-      </div>
+    </div></div>
+    <div class="tscalewrap">
       <div class="tscale">${zones}<i class="mk" style="--x:${pctT(temp)}%"></i></div>
       <div class="tticks">${ticks}</div>
       <div class="tzones"><span>저온</span><span>평온</span><span>미열</span><span>열애</span><span>위험</span></div>
     </div>
-    <div class="axes">${axes}</div>
+    ${axes}
   </div>`;
 }
 
@@ -541,8 +569,12 @@ function render(text, opt={}){
   const legend = `<div class="legend"><span><i style="background:var(--npc)"></i>${nName}</span><span><i style="background:var(--pc)"></i>${pName}</span></div>`;
   const head2 = first => `<thead><tr><th style="width:120px">${first}</th><th class="npcc">${nName}</th><th class="pcc">${pName}</th></tr></thead>`;
 
-  const axRows = AXES.map(([k,l],i)=>`<tr><th>${l}</th><td class="num npcc">${fmt(sN[i])}</td><td class="num pcc">${fmt(sP[i])}</td><td class="num">${fmt(Math.abs(sP[i]-sN[i]))}</td></tr>`).join('');
-  const ev = (d, who) => `<div class="ev" style="--role:var(--${who});--roleT:var(--${who}T)"><h4>${esc(d.이름)}</h4><ol>${(list(d.근거).length?list(d.근거):['기록 없음']).map((e,i)=>`<li style="--i:${i}" data-n="${pad(i+1)}">${esc(e)}</li>`).join('')}</ol></div>`;
+  const axRows = AXES.map(([k,l],i)=>`<tr><th>${l}</th><td class="num npcc">${fmt(sN[i])}</td><td class="num pcc">${fmt(sP[i])}</td><td class="num dif">${fmt(Math.abs(sP[i]-sN[i]))}</td></tr>`).join('');
+  const evN = list(N.근거).length ? list(N.근거) : ['기록 없음'], evP = list(P.근거).length ? list(P.근거) : ['기록 없음'];
+  const evMax = Math.max(evN.length, evP.length);
+  const ev = (items, d, who) => `<div class="ev" style="--role:var(--${who});--roleT:var(--${who}T);grid-row:span ${evMax+1}"><h4>${esc(d.이름)}</h4><ol>${
+    items.map((e,i)=>`<li style="--i:${i}" data-n="${pad(i+1)}">${esc(e)}</li>`).join('') +
+    Array.from({length:evMax-items.length},()=>'<li class="blank" aria-hidden="true"></li>').join('')}</ol></div>`;
   const sym = [['애정표현','애정 표현'],['질투','질투할 때'],['싸울때','싸울 때'],['식는신호','식어갈 때 신호']]
     .map(([k,l])=>`<tr><th>${l}</th><td>${esc(N[k]||'—')}</td><td>${esc(P[k]||'—')}</td></tr>`).join('');
   const cdP = list(P.곡선설명), cdN = list(N.곡선설명);
@@ -554,7 +586,7 @@ function render(text, opt={}){
     const sub = blank(d.부유형) ? null : typeOf(d.부유형);
     return `<div style="--kc:var(--${who}T)"><div class="k"><span><b>${esc(d.이름)}</b> 판정</span></div>
       <div class="v" style="color:${t?t.color:'inherit'}">${t?`${t.emoji} ${esc(t.key)}`:'미판정'}${sub&&t&&sub.key!==t.key?`<span class="plus">+ ${esc(sub.key)}</span>`:''}</div>
-      <div class="d">체온 <span class="mono">${temp.toFixed(1)}℃</span></div></div>`;
+      <div class="d">체온 <span class="mono">${temp.toFixed(1)}</span><span class="u">℃</span></div></div>`;
   };
 
   const sheet = $('#report');
@@ -571,14 +603,14 @@ function render(text, opt={}){
       </dl>
       <div class="summary">
         ${sumCell(N, tN, tB, 'npc')}
-        <div><div class="k"><span>궁합</span></div><div class="v" style="color:${G.color}">${esc(G.name)}</div><div class="d">체온차 <span class="mono">${diff.toFixed(1)}℃</span> · ${diffLab}</div></div>
+        <div><div class="k"><span>궁합</span></div><div class="v" style="color:${G.color}">${esc(G.name)}</div><div class="d">체온차 <span class="mono">${diff.toFixed(1)}</span><span class="u">℃</span> · ${diffLab}</div></div>
         ${sumCell(P, tP, tA, 'pc')}
       </div>
     </header>
 
     <section class="sec reveal">
       ${sh('01','피검자 판정','SUBJECT VERDICT')}
-      <div class="g2">${subject(N,'npc')}${subject(P,'pc')}</div>
+      <div class="subjects">${subject(N,'npc')}${subject(P,'pc')}</div>
     </section>
 
     <section class="sec reveal">
@@ -587,15 +619,15 @@ function render(text, opt={}){
         ${radarSVG(sN, sP, mN, mP)}
         <div>
           ${legend}
-          <table class="tbl"><thead><tr><th>항목</th><th class="num npcc">${nName}</th><th class="num pcc">${pName}</th><th class="num">차이</th></tr></thead><tbody>${axRows}</tbody></table>
-          <p class="note">체온차 <b><span data-count="${diff}" data-from="0" data-dec="1">${diff.toFixed(1)}</span>℃</b>: ${diffLab}. ${hotter}.</p>
+          <table class="tbl"><thead><tr><th>항목</th><th class="num npcc">${nName}</th><th class="num pcc">${pName}</th><th class="num dif">차이</th></tr></thead><tbody>${axRows}</tbody></table>
+          <p class="note">체온차 <b><span data-count="${diff}" data-from="0" data-dec="1">${diff.toFixed(1)}</span><span class="u">℃</span></b>: ${diffLab}. ${hotter}.</p>
         </div>
       </div>
     </section>
 
     <section class="sec reveal">
       ${sh('03','판정 근거','EVIDENCE')}
-      <div class="g2">${ev(N,'npc')}${ev(P,'pc')}</div>
+      <div class="evg">${ev(evN,N,'npc')}${ev(evP,P,'pc')}</div>
     </section>
 
     <section class="sec reveal">
