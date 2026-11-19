@@ -48,19 +48,26 @@ details summary{cursor:pointer;font-size:13px;color:var(--sub);margin-top:12px;u
 pre.ooc{white-space:pre-wrap;word-break:break-word;font-family:var(--mono);font-size:12px;line-height:1.75;background:var(--line2);border-radius:8px;padding:16px 18px;max-height:340px;overflow:auto;margin-top:10px;color:#333}
 textarea{width:100%;min-height:260px;font-family:var(--mono);font-size:12.5px;line-height:1.75;padding:16px 18px;border:1px solid var(--line);border-radius:8px;background:#fff;resize:vertical;color:var(--ink);margin-top:12px}
 textarea:focus{outline:none;border-color:var(--ink)}
+.npcpick{margin-top:14px;display:grid;gap:6px}
+.npcpick label{font-size:13px;font-weight:700}
+.npcpick label em{display:block;font-style:normal;font-weight:400;font-size:12px;color:var(--sub)}
+.npcpick input{font-family:var(--sans);font-size:14px;padding:9px 12px;border:1px solid var(--line);border-radius:8px;max-width:280px;color:var(--ink);background:#fff}
+.npcpick input:focus{outline:none;border-color:var(--ink)}
 .err{color:var(--pc);font-size:13px;margin-top:10px;min-height:1em}
 
 /* ── report ── */
 .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-bottom:14px}
 .toolbar .grp{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .colors{background:#fff;border:1px solid var(--line);border-radius:8px;padding:4px 6px 4px 12px}
-.colors .clab{font-size:12px;color:var(--sub);font-weight:600;margin-right:2px}
-.sw{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;cursor:pointer;padding:3px 8px;border-radius:6px}
-.sw:hover{background:var(--line2)}
-.sw input{width:22px;height:22px;border:none;padding:0;background:none;cursor:pointer;border-radius:50%;overflow:hidden}
-.sw input::-webkit-color-swatch-wrapper{padding:0}
-.sw input::-webkit-color-swatch{border:1px solid rgba(0,0,0,.12);border-radius:50%}
-.sw input::-moz-color-swatch{border:1px solid rgba(0,0,0,.12);border-radius:50%}
+.nmin{-webkit-appearance:none;appearance:none;height:auto;font-family:var(--sans);font-size:13px;font-weight:700;letter-spacing:0;border:none;border-bottom:1px dashed var(--line);border-radius:0;background:transparent;padding:2px 4px;margin:0;width:80px;min-width:48px;max-width:260px;color:var(--ink);outline:none;line-height:1.4;box-sizing:content-box}
+.nmin:hover{border-bottom-color:var(--sub)}
+.nmin:focus{border-bottom:1px solid var(--ink)}
+.colors .clab{font-size:12px;color:var(--sub);font-weight:600;margin-right:2px;white-space:nowrap}
+.sw{display:flex;align-items:center;gap:6px;padding:3px 6px;border-radius:6px}
+.sw input[type=color]{width:22px;height:22px;border:none;padding:0;background:none;cursor:pointer;border-radius:50%;overflow:hidden}
+.sw input[type=color]::-webkit-color-swatch-wrapper{padding:0}
+.sw input[type=color]::-webkit-color-swatch{border:1px solid rgba(0,0,0,.12);border-radius:50%}
+.sw input[type=color]::-moz-color-swatch{border:1px solid rgba(0,0,0,.12);border-radius:50%}
 .btn.ghost{border-color:transparent;padding:6px 10px;font-size:12px;color:var(--sub)}
 .btn.ghost:hover{border-color:var(--line);color:var(--ink)}
 .sheet{background:#fff;border:1px solid var(--line);border-radius:4px;padding:56px 56px 36px;box-shadow:0 1px 2px rgba(20,24,32,.04),0 16px 48px -16px rgba(20,24,32,.14)}
@@ -244,8 +251,12 @@ html.capture .rh h1{font-size:34px}
     <div class="step">
       <div class="step-no">STEP 01</div>
       <div>
-        <h3>OOC를 복사해서 롤플 채팅에 보내세요</h3>
+        <h3>OOC를 복사해서, 채팅에 보내세요.</h3>
         <p>AI가 PC와 NPC의 연애 온도를 정해진 양식으로 진단해 줘요.</p>
+        <div class="npcpick">
+          <label for="npcName">NPC 지정 <em>다인챗이면 진단할 캐릭터 이름을 적어 주세요. 비우면 기본 NPC로 진단해요.</em></label>
+          <input type="text" id="npcName" placeholder="예: 강도현" spellcheck="false" autocomplete="off">
+        </div>
         <div class="btns"><button class="btn" id="copyOoc">OOC 복사</button></div>
         <details>
           <summary>OOC 전문 보기</summary>
@@ -311,9 +322,9 @@ html.capture .rh h1{font-size:34px}
     <div class="toolbar">
       <div class="grp colors">
         <span class="clab">대표색</span>
-        <label class="sw"><input type="color" id="cNpc"><span id="nNpc">NPC</span></label>
-        <label class="sw"><input type="color" id="cPc"><span id="nPc">PC</span></label>
-        <button class="btn ghost" id="cReset" title="OOC에서 받은 색(없으면 기본색)으로 되돌려요">원래대로</button>
+        <div class="sw"><input type="color" id="cNpc" title="색 바꾸기"><input type="text" class="nmin" id="nNpc" title="이름 바꾸기" spellcheck="false"></div>
+        <div class="sw"><input type="color" id="cPc" title="색 바꾸기"><input type="text" class="nmin" id="nPc" title="이름 바꾸기" spellcheck="false"></div>
+        <button class="btn ghost" id="cReset" title="OOC에서 받은 이름과 색(없으면 기본색)으로 되돌려요">원래대로</button>
       </div>
       <div class="grp">
         <button class="btn" id="back">← 다시 입력</button>
@@ -489,7 +500,7 @@ const lum = ([r,g,b]) => { const f=c=>{c/=255;return c<=.03928?c/12.92:Math.pow(
 const contrast = h => 1.05/(lum(rgb(h))+.05);
 const toHex = a => '#'+a.map(x=>Math.round(clamp(x,0,255)).toString(16).padStart(2,'0')).join('');
 function darken(h, target){ let c=rgb(h); for(let i=0;i<30 && 1.05/(lum(c)+.05)<target;i++) c=c.map(x=>x*.92); return toHex(c); }
-const textColor = h => darken(h, 3.4);              // 글자용: 흰 바탕에서 읽히는 진하기
+const textColor = h => contrast(h)<1.9 ? darken(h,1.9) : h; // 글자용: 고른 색 그대로, 거의 흰색일 때만 살짝 진하게
 const markColor = h => contrast(h)<1.6 ? darken(h,1.6) : h; // 그래프용: 너무 연하면 살짝만 진하게
 function colorVars(){
   return `--pc:${markColor(colors.pc)};--pcT:${textColor(colors.pc)};--npc:${markColor(colors.npc)};--npcT:${textColor(colors.npc)}`;
@@ -497,6 +508,8 @@ function colorVars(){
 
 /* ───────── 보고서 렌더 ───────── */
 let current = {pc:'', npc:'', text:''};
+let aiNames = {pc:'', npc:''};
+let names = {pc:'', npc:''};
 function render(text, opt={}){
   const {push=true, keepColors=false, instant=false} = opt;
   const D = parse(text), P = D.PC, N = D.NPC, M = D.MATCH;
@@ -507,7 +520,9 @@ function render(text, opt={}){
   $('#err').textContent = '';
   if(!P.이름) P.이름 = '이름 없음'; if(!N.이름) N.이름 = '이름 없음';
   aiColors = {pc: normHex(P.대표색)||DEFAULT_COLORS.pc, npc: normHex(N.대표색)||DEFAULT_COLORS.npc};
-  if(!keepColors) colors = {...aiColors};
+  aiNames = {pc:P.이름, npc:N.이름};
+  if(!keepColors){ colors = {...aiColors}; names = {...aiNames}; }
+  P.이름 = names.pc.trim() || aiNames.pc; N.이름 = names.npc.trim() || aiNames.npc;
   current = {pc:P.이름, npc:N.이름, text};
   const pName = esc(P.이름), nName = esc(N.이름);
   const now = new Date(), pad = n=>String(n).padStart(2,'0');
@@ -623,10 +638,23 @@ function render(text, opt={}){
   if(push) saveState();
   return true;
 }
+const _mc = document.createElement('canvas').getContext('2d');
+function fitName(el){
+  const cs = getComputedStyle(el);
+  _mc.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+  const w = _mc.measureText(el.value || el.placeholder || '').width;
+  el.style.width = Math.ceil(w + 6) + 'px';
+  if(document.activeElement !== el) el.scrollLeft = 0;
+}
 function syncColorUI(){
   $('#cPc').value = colors.pc; $('#cNpc').value = colors.npc;
-  $('#nPc').textContent = current.pc; $('#nNpc').textContent = current.npc;
-  $('#nPc').style.color = textColor(colors.pc); $('#nNpc').style.color = textColor(colors.npc);
+  for(const [id,who] of [['#nPc','pc'],['#nNpc','npc']]){
+    const el = $(id);
+    if(document.activeElement !== el) el.value = names[who];
+    el.placeholder = aiNames[who];
+    el.style.color = textColor(colors[who]);
+    fitName(el);
+  }
   // 이름 순서도 보고서와 같게: 왼쪽 NPC, 오른쪽 PC
 }
 function saveState(){
@@ -681,7 +709,17 @@ async function savePNG(){
 }
 
 /* ───────── 이벤트 ───────── */
-$('#copyOoc').onclick = async()=>{ await copy($('#oocText').textContent); toast('OOC를 복사했어요'); };
+const OOC_BASE = $('#oocText').textContent;
+function buildOOC(){
+  const n = $('#npcName').value.trim().replace(/[\r\n*]/g,'');
+  if(!n) return OOC_BASE;
+  const c = n.charCodeAt(n.length-1), jong = (c>=0xAC00 && c<=0xD7A3) ? (c-0xAC00)%28 : 0;
+  const ro = (jong===0 || jong===8) ? '로' : '으로';
+  return OOC_BASE.replace('PC와 NPC의 연애 온도를 진단한다.', `PC와 ${n}의 연애 온도를 진단한다. NPC는 ${n}${ro} 고정하고 [NPC] 칸에 작성한다.`);
+}
+$('#npcName').addEventListener('input', ()=>{ $('#oocText').textContent = buildOOC(); try{ localStorage.setItem('lt-npc', $('#npcName').value); }catch{} });
+try{ const v=localStorage.getItem('lt-npc'); if(v){ $('#npcName').value=v; $('#oocText').textContent=buildOOC(); } }catch{}
+$('#copyOoc').onclick = async()=>{ await copy(buildOOC()); toast($('#npcName').value.trim() ? `${$('#npcName').value.trim()} 지정 OOC를 복사했어요` : 'OOC를 복사했어요'); };
 $('#go').onclick = ()=>render($('#input').value);
 $('#back').onclick = ()=>{ $('#reportWrap').hidden = true; $('#intake').hidden = false; window.scrollTo(0,0); };
 $('#png').onclick = savePNG;
@@ -692,9 +730,17 @@ function onColor(){
   cancelAnimationFrame(colorRAF);
   colorRAF = requestAnimationFrame(()=>render(current.text, {keepColors:true, instant:true}));
 }
-$('#cPc').addEventListener('input', onColor);
-$('#cNpc').addEventListener('input', onColor);
-$('#cReset').onclick = ()=>{ colors = {...aiColors}; render(current.text, {keepColors:true, instant:true}); toast('원래 색으로 되돌렸어요'); };
+['input','change'].forEach(ev=>{ $('#cPc').addEventListener(ev, onColor); $('#cNpc').addEventListener(ev, onColor); });
+function onName(){
+  names = {pc:$('#nPc').value, npc:$('#nNpc').value};
+  cancelAnimationFrame(colorRAF);
+  colorRAF = requestAnimationFrame(()=>render(current.text, {keepColors:true, instant:true}));
+}
+['#nPc','#nNpc'].forEach(id=>$(id).addEventListener('input', e=>{ fitName(e.target); onName(); }));
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(()=>{ fitName($('#nPc')); fitName($('#nNpc')); });
+$('#nPc').addEventListener('blur', ()=>{ if(!$('#nPc').value.trim()){ names.pc=aiNames.pc; syncColorUI(); } });
+$('#nNpc').addEventListener('blur', ()=>{ if(!$('#nNpc').value.trim()){ names.npc=aiNames.npc; syncColorUI(); } });
+$('#cReset').onclick = ()=>{ colors = {...aiColors}; names = {...aiNames}; render(current.text, {keepColors:true, instant:true}); toast('원래대로 되돌렸어요'); };
 
 (function init(){
   if(location.hash){ try{ history.replaceState(null,'',location.pathname+location.search); }catch{} }
