@@ -317,7 +317,6 @@ html.capture .rh h1{font-size:34px}
       </div>
       <div class="grp">
         <button class="btn" id="back">← 다시 입력</button>
-        <button class="btn" id="share">결과 링크 복사</button>
         <button class="btn primary" id="png">PNG로 저장</button>
       </div>
     </div>
@@ -631,9 +630,6 @@ function syncColorUI(){
   // 이름 순서도 보고서와 같게: 왼쪽 NPC, 오른쪽 PC
 }
 function saveState(){
-  const custom = colors.pc!==aiColors.pc || colors.npc!==aiColors.npc;
-  const c = custom ? `&c=${colors.pc.slice(1)}-${colors.npc.slice(1)}` : '';
-  try{ history.replaceState(null,'','#r='+b64e(current.text)+c); }catch{}
   try{ localStorage.setItem('lt-last', current.text); }catch{}
 }
 
@@ -684,15 +680,10 @@ async function savePNG(){
   }
 }
 
-/* ───────── 링크 공유 ───────── */
-function b64e(s){ const b=new TextEncoder().encode(s); let bin=''; b.forEach(x=>bin+=String.fromCharCode(x)); return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }
-function b64d(s){ s=s.replace(/-/g,'+').replace(/_/g,'/'); while(s.length%4) s+='='; const bin=atob(s); return new TextDecoder().decode(Uint8Array.from(bin,c=>c.charCodeAt(0))); }
-
 /* ───────── 이벤트 ───────── */
 $('#copyOoc').onclick = async()=>{ await copy($('#oocText').textContent); toast('OOC를 복사했어요'); };
 $('#go').onclick = ()=>render($('#input').value);
-$('#back').onclick = ()=>{ $('#reportWrap').hidden = true; $('#intake').hidden = false; try{ history.replaceState(null,'',location.pathname+location.search); }catch{} window.scrollTo(0,0); };
-$('#share').onclick = async()=>{ await copy(location.href); toast('결과 링크를 복사했어요'); };
+$('#back').onclick = ()=>{ $('#reportWrap').hidden = true; $('#intake').hidden = false; window.scrollTo(0,0); };
 $('#png').onclick = savePNG;
 
 let colorRAF = 0;
@@ -706,17 +697,7 @@ $('#cNpc').addEventListener('input', onColor);
 $('#cReset').onclick = ()=>{ colors = {...aiColors}; render(current.text, {keepColors:true, instant:true}); toast('원래 색으로 되돌렸어요'); };
 
 (function init(){
-  const m = location.hash.match(/r=([^&]+)/);
-  if(m){
-    try{
-      const t = b64d(m[1]); $('#input').value = t;
-      const c = location.hash.match(/c=([0-9a-fA-F]{6})-([0-9a-fA-F]{6})/);
-      if(render(t, {push:false})){
-        if(c){ colors = {pc:'#'+c[1].toLowerCase(), npc:'#'+c[2].toLowerCase()}; render(t, {push:false, keepColors:true, instant:true}); }
-        return;
-      }
-    }catch{}
-  }
+  if(location.hash){ try{ history.replaceState(null,'',location.pathname+location.search); }catch{} }
   try{ const last=localStorage.getItem('lt-last'); if(last) $('#input').value=last; }catch{}
 })();
 </script>
