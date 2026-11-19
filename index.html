@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>연애 온도 진단 보고서 · Love Thermometry Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<style>
+:root{
+  --bg:#eef0f3; --sheet:#fff; --ink:#15171c; --sub:#6a707a; --faint:#a0a6ae;
+  --line:#e2e5e9; --line2:#f2f3f5;
+  --pc:#d2453b; --npc:#2f5aa8;
+  --sans:'Pretendard',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh}
+[hidden]{display:none!important}
+.mono{font-family:var(--mono)}
+
+/* ── top bar ── */
+.top{max-width:920px;margin:0 auto;padding:32px 20px 0;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.logo{font-weight:800;font-size:15px;letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
+.logo i{width:9px;height:9px;border-radius:50%;background:var(--pc);box-shadow:12px 0 0 var(--npc);margin-right:14px}
+.logo small{font-family:var(--mono);font-weight:400;font-size:11px;color:var(--faint);letter-spacing:.08em}
+main{max-width:920px;margin:0 auto;padding:20px 20px 72px}
+
+/* ── buttons ── */
+.btn{font-family:var(--sans);font-size:13px;font-weight:600;padding:9px 16px;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;transition:border-color .15s,background .15s}
+.btn:hover{border-color:var(--ink)}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:#fff}
+.btn.primary:hover{background:#2c3038}
+.btn:disabled{opacity:.5;cursor:default}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+
+/* ── intake ── */
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 28px}
+.step{display:grid;grid-template-columns:72px 1fr;gap:16px;padding:24px 0;border-top:1px solid var(--line2)}
+.step:first-child{border-top:none}
+.step-no{font-family:var(--mono);font-size:11px;color:var(--sub);letter-spacing:.08em;padding-top:3px}
+.step h3{font-size:16px;font-weight:700}
+.step p{font-size:13px;color:var(--sub);margin-top:2px}
+details summary{cursor:pointer;font-size:13px;color:var(--sub);margin-top:12px;user-select:none}
+pre.ooc{white-space:pre-wrap;word-break:break-word;font-family:var(--mono);font-size:12px;line-height:1.75;background:var(--line2);border-radius:8px;padding:16px 18px;max-height:340px;overflow:auto;margin-top:10px;color:#333}
+textarea{width:100%;min-height:260px;font-family:var(--mono);font-size:12.5px;line-height:1.75;padding:16px 18px;border:1px solid var(--line);border-radius:8px;background:#fff;resize:vertical;color:var(--ink);margin-top:12px}
+textarea:focus{outline:none;border-color:var(--ink)}
+.err{color:var(--pc);font-size:13px;margin-top:10px;min-height:1em}
+
+/* ── report ── */
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-bottom:14px}
+.toolbar .grp{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.colors{background:#fff;border:1px solid var(--line);border-radius:8px;padding:4px 6px 4px 12px}
+.colors .clab{font-size:12px;color:var(--sub);font-weight:600;margin-right:2px}
+.sw{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;cursor:pointer;padding:3px 8px;border-radius:6px}
+.sw:hover{background:var(--line2)}
+.sw input{width:22px;height:22px;border:none;padding:0;background:none;cursor:pointer;border-radius:50%;overflow:hidden}
+.sw input::-webkit-color-swatch-wrapper{padding:0}
+.sw input::-webkit-color-swatch{border:1px solid rgba(0,0,0,.12);border-radius:50%}
+.sw input::-moz-color-swatch{border:1px solid rgba(0,0,0,.12);border-radius:50%}
+.btn.ghost{border-color:transparent;padding:6px 10px;font-size:12px;color:var(--sub)}
+.btn.ghost:hover{border-color:var(--line);color:var(--ink)}
+.sheet{background:#fff;border:1px solid var(--line);border-radius:4px;padding:56px 56px 36px;box-shadow:0 1px 2px rgba(20,24,32,.04),0 16px 48px -16px rgba(20,24,32,.14)}
+
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.8,.2,1)}
+.reveal.in{opacity:1;transform:none}
+
+/* header */
+.rh-top{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:11px;color:var(--sub);letter-spacing:.06em}
+.rh-top .tag{display:flex;align-items:center;gap:8px}
+.rh-top .tag::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--pc)}
+.rh h1{font-size:34px;font-weight:800;letter-spacing:-.03em;line-height:1.25;margin-top:22px}
+.rh .en{font-family:var(--mono);font-size:12px;color:var(--faint);letter-spacing:.12em;margin-top:2px}
+.rh-meta{display:grid;grid-template-columns:repeat(4,1fr);margin-top:28px;border-top:2px solid var(--ink);border-bottom:1px solid var(--line)}
+.rh-meta div{padding:12px 14px 12px 0}
+.rh-meta div+div{padding-left:14px;border-left:1px solid var(--line)}
+.rh-meta dt{font-size:11px;color:var(--sub)}
+.rh-meta dd{font-size:15px;font-weight:700;margin-top:2px;word-break:keep-all}
+.rh-meta dd .a{color:var(--npcT)} .rh-meta dd .b{color:var(--pcT)} .rh-meta dd .x{color:var(--faint);font-weight:400;margin:0 6px}
+.rh-meta .span2{grid-column:span 2}
+.rh-meta dd.mono{font-weight:500;font-size:13px;padding-top:2px}
+
+/* summary */
+.summary{display:grid;grid-template-columns:1fr 1fr 1fr;margin-top:28px;background:var(--line2);border-radius:8px}
+.summary>div{padding:18px 20px}
+.summary>div+div{border-left:1px solid var(--line)}
+.summary .k{font-size:11px;color:var(--sub);display:flex;justify-content:space-between}
+.summary .v{font-size:18px;font-weight:800;margin-top:6px;letter-spacing:-.02em}
+.summary .d{font-size:12px;color:var(--sub);margin-top:2px}
+.summary .k b{color:var(--kc);font-weight:700}
+.summary .plus{font-size:12px;font-weight:600;margin-left:6px;opacity:.75}
+
+/* section */
+.sec{margin-top:48px}
+.sh{display:flex;align-items:baseline;gap:10px;padding-bottom:10px;border-bottom:1px solid var(--ink);margin-bottom:22px}
+.sh .no{font-family:var(--mono);font-size:12px;color:var(--sub)}
+.sh h2{font-size:18px;font-weight:800;letter-spacing:-.02em}
+.sh .en{margin-left:auto;font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--faint)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:40px}
+
+/* subject */
+.subj-h{display:flex;align-items:center;gap:10px}
+.role{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.1em;color:#fff;background:var(--role);padding:2px 7px;border-radius:3px}
+.nm{font-size:22px;font-weight:800;letter-spacing:-.02em;color:var(--roleT);display:flex;align-items:center;gap:10px}
+.nm::before{content:'';width:12px;height:12px;border-radius:50%;background:var(--role);flex-shrink:0}
+.one{font-size:13px;color:var(--sub);margin-top:4px;min-height:1.6em}
+.typeline{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:16px}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:700;color:var(--c);background:var(--ct);border:1px solid var(--c);padding:4px 12px 4px 10px;border-radius:999px}
+.pill em{font-style:normal;font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.08em;opacity:.8}
+.subbox{display:flex;gap:10px;align-items:baseline;margin-top:10px;padding:9px 12px;background:var(--line2);border-radius:6px;font-size:12.5px}
+.subbox b{white-space:nowrap;font-weight:700;color:var(--sc)}
+.subbox .sl{font-size:10px;color:var(--sub);font-weight:600;white-space:nowrap}
+.subbox span:last-child{color:#3a3e46}
+.tdesc{font-size:13px;margin-top:8px;color:#3a3e46}
+
+.tblk{margin-top:20px;padding:16px 0 4px;border-top:1px solid var(--line2)}
+.trow{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.tlab{font-size:12px;color:var(--sub)}
+.tval{font-family:var(--mono);font-size:30px;font-weight:600;color:var(--c);letter-spacing:-.02em;line-height:1.1}
+.tval small{font-size:15px;margin-left:1px}
+.tstate{font-size:12px;color:var(--sub);text-align:right}
+.tscale{position:relative;height:8px;margin-top:12px;display:flex;border-radius:4px;overflow:visible}
+.tscale span{height:100%}
+.tscale span:first-child{border-radius:4px 0 0 4px}
+.tscale span:last-child{border-radius:0 4px 4px 0}
+.mk{position:absolute;top:-5px;width:2px;height:18px;background:var(--ink);left:0;transition:left 1.6s cubic-bezier(.2,.8,.2,1) .3s}
+.mk::after{content:'';position:absolute;top:-4px;left:-3px;width:8px;height:8px;border-radius:50%;background:var(--ink)}
+.in .mk{left:var(--x)}
+.tticks{position:relative;height:16px;margin-top:6px;font-family:var(--mono);font-size:10px;color:var(--faint)}
+.tticks span{position:absolute;transform:translateX(-50%)}
+.tticks span:first-child{transform:none}
+.tticks span:last-child{transform:translateX(-100%)}
+.tzones{display:flex;justify-content:space-between;font-size:10px;color:var(--faint);margin-top:0}
+
+.axes{margin-top:18px}
+.ax{display:grid;grid-template-columns:64px 1fr 28px;gap:12px;align-items:center;padding:9px 0 0}
+.ax .l{font-size:13px;font-weight:600}
+.bar{height:6px;background:var(--line2);border-radius:3px;overflow:hidden}
+.bar i{display:block;height:100%;width:var(--w);background:var(--role);border-radius:3px;transform:scaleX(0);transform-origin:left;transition:transform 1s cubic-bezier(.2,.8,.2,1);transition-delay:calc(.4s + var(--i)*.1s)}
+.in .bar i{transform:scaleX(1)}
+.ax .n{font-family:var(--mono);font-size:13px;font-weight:600;text-align:right}
+.ax .why{grid-column:1/-1;font-size:12px;color:var(--sub);padding:2px 0 8px;border-bottom:1px solid var(--line2)}
+
+/* compare */
+.cmpwrap{display:grid;grid-template-columns:280px 1fr;gap:40px;align-items:center}
+.radar{width:100%;max-width:300px;height:auto;display:block;margin:0 auto;overflow:visible}
+.radar .poly{transform:scale(0);transform-origin:150px 150px;transition:transform 1.2s cubic-bezier(.2,.8,.2,1)}
+.radar .poly.n{transition-delay:.2s}
+.in .radar .poly{transform:scale(1)}
+table{width:100%;border-collapse:collapse}
+.tbl th,.tbl td{padding:11px 10px;border-bottom:1px solid var(--line2);text-align:left;vertical-align:top;font-size:13px}
+.tbl thead th{font-size:11px;font-weight:600;color:var(--sub);background:var(--line2);border-bottom:none}
+.tbl thead th:first-child{border-radius:6px 0 0 6px} .tbl thead th:last-child{border-radius:0 6px 6px 0}
+.tbl tbody th{font-weight:700;white-space:nowrap}
+.tbl .num{font-family:var(--mono);text-align:right;width:70px}
+.tbl .pcc{color:var(--pcT)} .tbl .npcc{color:var(--npcT)}
+.legend{display:flex;gap:16px;font-size:12px;color:var(--sub);margin-bottom:12px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.note{margin-top:14px;font-size:13px;padding:12px 14px;border-left:3px solid var(--ink);background:var(--line2)}
+.note b{font-family:var(--mono)}
+
+/* evidence */
+.ev h4,.rx h4{font-size:13px;font-weight:700;color:var(--roleT);margin-bottom:8px}
+.ev ol{list-style:none}
+.ev li{display:grid;grid-template-columns:28px 1fr;gap:6px;padding:10px 0;border-bottom:1px solid var(--line2);font-size:13.5px;opacity:0;transform:translateY(6px);transition:opacity .5s,transform .5s;transition-delay:calc(.2s + var(--i)*.12s)}
+.ev li::before{content:attr(data-n);font-family:var(--mono);font-size:11px;color:var(--faint);padding-top:2px}
+.in .ev li{opacity:1;transform:none}
+
+/* curve */
+.curve{width:100%;display:block}
+.curve .line{stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 1.8s cubic-bezier(.4,0,.2,1) .3s}
+.curve .line.n{transition-delay:.6s}
+.in .curve .line{stroke-dashoffset:0}
+.curve .dot{opacity:0;transition:opacity .4s;transition-delay:calc(.7s + var(--i)*.35s)}
+.in .curve .dot{opacity:1}
+
+/* match */
+.gscale{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.gscale .seg{height:10px;background:var(--line2);border-radius:2px;position:relative}
+.gscale .seg.on{background:var(--g)}
+.gscale .seg.on::after{content:'';position:absolute;left:50%;top:-12px;margin-left:-5px;border:5px solid transparent;border-top-color:var(--ink)}
+.gscale .seg{transition:background .6s ease .3s}
+.reveal:not(.in) .gscale .seg.on{background:var(--line2)}
+.glabs{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:8px;font-size:11px;color:var(--faint);text-align:center}
+.glabs .on{color:var(--ink);font-weight:700}
+.gres{display:flex;align-items:baseline;gap:12px;margin-bottom:26px}
+.gres b{font-size:26px;font-weight:800;color:var(--g);letter-spacing:-.02em}
+.gres span{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.12em}
+.quote{margin-top:24px;font-size:15px;line-height:1.75;padding-left:16px;border-left:3px solid var(--g)}
+.kv{display:grid;grid-template-columns:90px 1fr;gap:12px;margin-top:16px;padding-top:14px;border-top:1px solid var(--line2);font-size:13px}
+.kv dt{color:var(--sub)}
+
+/* rx */
+.rx ul{list-style:none}
+.rx li{font-size:13.5px;padding:7px 0 7px 22px;position:relative;border-bottom:1px solid var(--line2)}
+.rx li::before{position:absolute;left:2px;font-family:var(--mono);font-weight:600}
+.rx .up li::before{content:'+';color:var(--roleT)}
+.rx .dn li::before{content:'−';color:var(--faint)}
+.rx h5{font-size:11px;color:var(--sub);font-weight:600;margin:12px 0 2px;letter-spacing:.02em}
+
+/* footer */
+.rf{margin-top:52px;padding-top:14px;border-top:1px solid var(--ink);display:flex;justify-content:space-between;gap:16px;font-size:11px;color:var(--sub);flex-wrap:wrap}
+.rf .mono{letter-spacing:.06em}
+
+.toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,16px);background:var(--ink);color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;opacity:0;pointer-events:none;transition:.25s;z-index:9}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media (max-width:760px){
+  .sheet{padding:32px 22px 28px}
+  .g2,.cmpwrap,.summary{grid-template-columns:1fr;gap:28px}
+  .summary{gap:0} .summary>div+div{border-left:none;border-top:1px solid var(--line)}
+  .rh-meta{grid-template-columns:1fr 1fr}
+  .rh-meta div:nth-child(3){padding-left:0;border-left:none}
+  .rh-meta div:nth-child(n+3){border-top:1px solid var(--line)}
+  .step{grid-template-columns:1fr;gap:4px}
+  .rh h1{font-size:27px}
+}
+
+/* 최종 상태 고정 (움직임 줄이기 / PNG 저장) */
+html.final *,html.final *::before,html.final *::after{transition:none!important;animation:none!important}
+/* PNG 저장 시 항상 데스크톱 레이아웃 */
+html.capture .sheet{width:880px;padding:56px 56px 36px;border:none;border-radius:0;box-shadow:none}
+html.capture .g2{grid-template-columns:1fr 1fr;gap:40px}
+html.capture .cmpwrap{grid-template-columns:280px 1fr;gap:40px}
+html.capture .summary{grid-template-columns:1fr 1fr 1fr}
+html.capture .summary>div+div{border-left:1px solid var(--line);border-top:none}
+html.capture .rh-meta{grid-template-columns:repeat(4,1fr)}
+html.capture .rh-meta div+div{padding-left:14px;border-left:1px solid var(--line);border-top:none}
+html.capture .rh h1{font-size:34px}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="logo"><i></i>연애 온도 진단 <small>LOVE THERMOMETRY</small></div>
+</div>
+
+<main>
+  <!-- 입력 -->
+  <section id="intake" class="card">
+    <div class="step">
+      <div class="step-no">STEP 01</div>
+      <div>
+        <h3>OOC를 복사해서 롤플 채팅에 보내세요</h3>
+        <p>AI가 PC와 NPC의 연애 온도를 정해진 양식으로 진단해 줘요.</p>
+        <div class="btns"><button class="btn" id="copyOoc">OOC 복사</button></div>
+        <details>
+          <summary>OOC 전문 보기</summary>
+<pre class="ooc" id="oocText">*OOC: 이전 롤플레잉을 중단하고, 새로운 시점에서 에피소드를 시작한다. 아래를 따라 PC와 NPC의 연애 온도를 진단한다.
+- 설정·대화·행동을 근거로 판정하고, 말과 행동이 다르면 행동을 우선. 미화·과장 금지
+- 4축(1~5점): 점화=마음이 붙는 속도 / 최고온도=감정의 최대 강도 / 지속력=온도 유지력 / 표현=속마음이 드러나는 정도
+- 유형: 불꽃형(빠르고 뜨겁게 다 드러냄), 폭죽형(빨리 붙고 빨리 식음), 장작형(늦게 붙고 오래 감), 촛불형(잔잔함, 편안함 우선), 냉각형(거리 두고 감정을 숨김), 휴화산형(겉은 차갑고 속은 뜨거움)
+- 부유형은 필요할 때만 쓰고, 없으면 부유형과 부유형설명을 비울 것
+- 대표색: 캐릭터 상징색 #RRGGBB
+- 체온·곡선: 34~42 숫자(36.5 평온, 38~40 열애)
+- 아래 양식을 코드블록 안에 그대로 출력. 항목명 변경과 * 금지, 여러 개는 / 로 구분
+- [NPC]도 [PC]와 같은 항목을 모두 작성
+
+&lt;&lt;연애온도진단&gt;&gt;
+[PC]
+이름:
+한줄요약:
+대표색:
+점화: 점수 | 근거
+최고온도: 점수 | 근거
+지속력: 점수 | 근거
+표현: 점수 | 근거
+유형:
+부유형:
+부유형설명: 부유형이 드러나는 순간 한 줄
+체온:
+체온상태:
+근거: 장면 / 장면 / 장면
+애정표현:
+질투:
+싸울때:
+식는신호:
+곡선: 시작 / 중반 / 장기 체온
+곡선설명: 시작 / 중반 / 장기
+온도올리기: 3개
+지뢰: 3개
+[NPC]
+(PC와 같은 항목)
+[궁합]
+등급: 뜨거움, 따뜻함, 미지근, 온도차 주의, 냉전 위험 중 하나
+코멘트:
+관계예보: 일기예보처럼 한 줄
+&lt;&lt;끝&gt;&gt;*</pre>
+        </details>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-no">STEP 02</div>
+      <div>
+        <h3>AI의 답변을 그대로 붙여 넣으세요</h3>
+        <p>&lt;&lt;연애온도진단&gt;&gt;부터 &lt;&lt;끝&gt;&gt;까지 넣으면 돼요. 앞뒤에 다른 말이 섞여도 괜찮아요.</p>
+        <textarea id="input" spellcheck="false" placeholder="<<연애온도진단>>&#10;[PC]&#10;이름: ...&#10;..."></textarea>
+        <div class="btns">
+          <button class="btn primary" id="go">보고서 발급</button>
+        </div>
+        <div class="err" id="err"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 보고서 -->
+  <section id="reportWrap" hidden>
+    <div class="toolbar">
+      <div class="grp colors">
+        <span class="clab">대표색</span>
+        <label class="sw"><input type="color" id="cNpc"><span id="nNpc">NPC</span></label>
+        <label class="sw"><input type="color" id="cPc"><span id="nPc">PC</span></label>
+        <button class="btn ghost" id="cReset" title="OOC에서 받은 색(없으면 기본색)으로 되돌려요">원래대로</button>
+      </div>
+      <div class="grp">
+        <button class="btn" id="back">← 다시 입력</button>
+        <button class="btn" id="share">결과 링크 복사</button>
+        <button class="btn primary" id="png">PNG로 저장</button>
+      </div>
+    </div>
+    <article class="sheet" id="report"></article>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ───────── 설정 ───────── */
+const CREDIT = 'made by @Cookie_B_A';
+const LAB_NAME = 'LOVE THERMOMETRY LAB';
+
+const TYPES = {
+  '불꽃형':  {emoji:'🔥', en:'BLAZE',     color:'#d6402f', desc:'빠르게 붙고 뜨겁게 타오르며 전부 드러낸다. 전부 걸고 사랑하는 타입.'},
+  '폭죽형':  {emoji:'🎆', en:'FIREWORK',  color:'#c9457c', desc:'순식간에 붙고 화려하게 터진 뒤 급격히 식는다. 설렘에 중독된 타입.'},
+  '장작형':  {emoji:'🪵', en:'SLOW BURN', color:'#9a5a2c', desc:'늦게 붙지만 한번 붙으면 꺼지지 않는다. 생활에 스며드는 사랑.'},
+  '촛불형':  {emoji:'🕯️', en:'CANDLE',    color:'#b07d22', desc:'작고 잔잔하게 켜져 있다. 크게 타오르진 않아도 편안함이 우선인 사랑.'},
+  '냉각형':  {emoji:'🧊', en:'FROST',     color:'#3a7fb0', desc:'거리 두기가 기본값. 감정을 통제하고 약점으로 여긴다.'},
+  '휴화산형':{emoji:'🌋', en:'DORMANT',   color:'#7a2236', desc:'표현은 차갑지만 속은 끓는다. 터지는 순간이 가장 무섭다.'},
+};
+const TYPE_ALIAS = {'미지근':'촛불형'};
+const GRADES = [
+  {k:'냉전',   name:'냉전 위험',   en:'COLD WAR', color:'#3a6aa0'},
+  {k:'온도차', name:'온도차 주의', en:'TEMP GAP', color:'#6c55a6'},
+  {k:'미지근', name:'미지근',      en:'LUKEWARM', color:'#a08a3e'},
+  {k:'따뜻',   name:'따뜻함',      en:'WARM',     color:'#e07f2f'},
+  {k:'뜨거',   name:'뜨거움',      en:'HOT',      color:'#d6402f'},
+];
+const AXES = [['점화','점화'],['최고온도','최고 온도'],['지속력','지속력'],['표현','표현']];
+
+/* ───────── 유틸 ───────── */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const clamp = (n,a,b) => Math.max(a, Math.min(b, n));
+const firstNum = (v, d) => { const m = String(v||'').match(/-?\d+(\.\d+)?/); return m ? parseFloat(m[0]) : d; };
+const nums = v => (String(v||'').match(/\d+(\.\d+)?/g) || []).map(Number);
+const list = v => String(v||'').split(/\s*\/+\s*|\s*;\s*/).map(s=>s.trim()).filter(Boolean);
+const blank = v => !v || /^\(.*\)$/.test(v.trim()) || /^(없음|없다|-|—)$/.test(v.trim());
+const fmt = n => n%1 ? n.toFixed(1) : String(n);
+const tint = (hex,a) => { const h=hex.replace('#',''); const r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16); return `rgba(${r},${g},${b},${a})`; };
+const pctT = t => (clamp(t,34,42)-34)/8*100;
+
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),1800); }
+async function copy(text){
+  try{ await navigator.clipboard.writeText(text); }
+  catch{ const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); }
+}
+
+/* ───────── 파서 ───────── */
+function parse(text){
+  const out = {PC:{}, NPC:{}, MATCH:{}};
+  let cur = null, last = null;
+  String(text).replace(/\r/g,'').split('\n').forEach(raw => {
+    const line = raw.replace(/\*\*|__|`/g,'').trim().replace(/^[-•·*]\s+/,'');
+    if(!line || /^<<.*>>\)?$/.test(line)) return;
+    const s = line.match(/^\[\s*(PC|NPC|궁합)\s*\]/i);
+    if(s){ const k=s[1].toUpperCase(); cur = k==='PC'?'PC':k==='NPC'?'NPC':'MATCH'; last=null; return; }
+    if(!cur) return;
+    const m = line.match(/^([^:：|"“]{1,12})[:：]\s*(.*)$/);
+    if(m){ last = m[1].replace(/\s/g,''); out[cur][last] = m[2].trim(); }
+    else if(last){ out[cur][last] += ' ' + line; }
+  });
+  return out;
+}
+function score(v){
+  v = String(v||''); const i = v.indexOf('|');
+  const a = i<0 ? v : v.slice(0,i);
+  const m = a.match(/\d+(\.\d+)?/);
+  const n = clamp(m ? parseFloat(m[0]) : 0, 0, 5);
+  let why = i<0 ? (m ? a.replace(m[0],'').replace(/^[\s\-–—,.:점/5]+/,'') : a) : v.slice(i+1);
+  return {n, why: why.trim()};
+}
+function typeOf(v){
+  const s = String(v||'').replace(/\s/g,'');
+  if(!s) return null;
+  for(const a in TYPE_ALIAS) if(s.includes(a)) return {key:TYPE_ALIAS[a], ...TYPES[TYPE_ALIAS[a]]};
+  for(const k in TYPES) if(s.includes(k.replace('형',''))) return {key:k, ...TYPES[k]};
+  return {key:s, emoji:'🌡️', en:'UNCLASSIFIED', color:'#6a707a', desc:''};
+}
+function gradeIdx(v){ const s=String(v||'').replace(/\s/g,''); return GRADES.findIndex(g=>s.includes(g.k)); }
+function hash(s){ let h=0; for(const c of s) h=(h*31 + c.codePointAt(0))>>>0; return h.toString(16).toUpperCase().padStart(8,'0').slice(-4); }
+
+/* ───────── 조각 ───────── */
+const ZONES = [[34,36.5,'#e6edf6'],[36.5,38,'#fbeedd'],[38,40,'#f9ddd6'],[40,42,'#f2c3bb']];
+function subject(d, who){
+  const t = typeOf(d.유형) || {key:'미판정', emoji:'🌡️', en:'UNCLASSIFIED', color:'#6a707a', desc:''};
+  const sub = blank(d.부유형) ? null : typeOf(d.부유형);
+  const subDesc = blank(d.부유형설명) ? (sub ? sub.desc : '') : d.부유형설명;
+  const temp = clamp(firstNum(d.체온,36.5),34,42);
+  const zones = ZONES.map(([a,b,c])=>`<span style="width:${(b-a)/8*100}%;background:${c}"></span>`).join('');
+  const ticks = [34,36.5,38,40,42].map(v=>`<span style="left:${pctT(v)}%">${v}</span>`).join('');
+  const axes = AXES.map(([k,l],i)=>{ const s=score(d[k]); return `
+    <div class="ax"><div class="l">${l}</div><div class="bar"><i style="--w:${s.n/5*100}%;--i:${i}"></i></div><div class="n">${fmt(s.n)}</div>
+    <div class="why">${esc(s.why)}</div></div>`; }).join('');
+  return `
+  <div style="--role:var(--${who});--roleT:var(--${who}T);--c:${t.color};--ct:${tint(t.color,.08)}">
+    <div class="subj-h"><span class="nm">${esc(d.이름||'')}</span></div>
+    <p class="one">${esc(d.한줄요약||'')}</p>
+    <div class="typeline"><span class="pill">${t.emoji} ${esc(t.key)} <em>${t.en}</em></span></div>
+    ${t.desc?`<p class="tdesc">${t.desc}</p>`:''}
+    ${sub && sub.key!==t.key ? `<div class="subbox" style="--sc:${sub.color}"><span class="sl">부유형</span><b>${sub.emoji} ${esc(sub.key)}</b><span>${esc(subDesc)}</span></div>` : ''}
+    <div class="tblk">
+      <div class="trow">
+        <div><div class="tlab">체온</div><div class="tval"><span data-count="${temp}" data-from="34" data-dec="1">${temp.toFixed(1)}</span><small>℃</small></div></div>
+        <div class="tstate">${esc(d.체온상태||'')}</div>
+      </div>
+      <div class="tscale">${zones}<i class="mk" style="--x:${pctT(temp)}%"></i></div>
+      <div class="tticks">${ticks}</div>
+      <div class="tzones"><span>저온</span><span>평온</span><span>미열</span><span>열애</span><span>위험</span></div>
+    </div>
+    <div class="axes">${axes}</div>
+  </div>`;
+}
+
+function radarSVG(a, b, ca, cb){
+  const C=150, R=100, ang=i=>-Math.PI/2 + i*Math.PI/2;
+  const pt=(i,v)=>[C+Math.cos(ang(i))*R*v/5, C+Math.sin(ang(i))*R*v/5];
+  const poly=vals=>vals.map((v,i)=>pt(i,v).map(n=>n.toFixed(1)).join(',')).join(' ');
+  const F='Pretendard,Apple SD Gothic Neo,Malgun Gothic,sans-serif';
+  let g='';
+  for(let r=1;r<=5;r++) g+=`<polygon points="${poly([r,r,r,r])}" fill="none" stroke="${r===5?'#cfd3d8':'#e8eaed'}" stroke-width="1"/>`;
+  for(let i=0;i<4;i++){ const [x,y]=pt(i,5); g+=`<line x1="${C}" y1="${C}" x2="${x}" y2="${y}" stroke="#e8eaed" stroke-width="1"/>`; }
+  [['점화',C,32,'middle'],['최고 온도',C+R+10,C+4,'start'],['지속력',C,C+R+22,'middle'],['표현',C-R-10,C+4,'end']]
+    .forEach(([t,x,y,an])=>{ g+=`<text x="${x}" y="${y}" text-anchor="${an}" font-size="12" font-weight="600" fill="#15171c" font-family="${F}">${t}</text>`; });
+  g+=`<polygon class="poly" points="${poly(a)}" fill="${ca}" fill-opacity="0.14" stroke="${ca}" stroke-width="2" stroke-linejoin="round"/>`;
+  g+=`<polygon class="poly n" points="${poly(b)}" fill="${cb}" fill-opacity="0.14" stroke="${cb}" stroke-width="2" stroke-linejoin="round"/>`;
+  return `<svg class="radar" viewBox="-30 0 360 300" width="300" height="250">${g}</svg>`;
+}
+
+function curveSVG(pc, npc, ca, cb){
+  const W=800,H=280,L=44,Rp=24,T=20,B=40, iw=W-L-Rp, ih=H-T-B;
+  const X=i=>L+i*iw/2, Y=t=>T+(42-clamp(t,34,42))/8*ih;
+  const F='IBM Plex Mono,Menlo,monospace', FK='Pretendard,Apple SD Gothic Neo,Malgun Gothic,sans-serif';
+  let g=`<rect x="${L}" y="${T}" width="${iw}" height="${Y(40)-T}" fill="#d2453b" fill-opacity="0.05"/>`;
+  for(let t=34;t<=42;t+=2){ g+=`<line x1="${L}" x2="${W-Rp}" y1="${Y(t)}" y2="${Y(t)}" stroke="#eceef1" stroke-width="1"/><text x="${L-8}" y="${Y(t)+4}" text-anchor="end" font-size="11" fill="#a0a6ae" font-family="${F}">${t}</text>`; }
+  g+=`<line x1="${L}" x2="${W-Rp}" y1="${Y(36.5)}" y2="${Y(36.5)}" stroke="#a0a6ae" stroke-width="1" stroke-dasharray="3 4"/>`;
+  g+=`<text x="${(X(0)+X(1))/2}" y="${Y(36.5)+15}" text-anchor="middle" font-size="11" fill="#a0a6ae" font-family="${FK}">평온 36.5</text>`;
+  g+=`<text x="${L+8}" y="${T+15}" font-size="11" fill="#d2453b" font-family="${FK}">위험 구간</text>`;
+  ['시작','중반','장기'].forEach((t,i)=>{ g+=`<text x="${X(i)}" y="${H-12}" text-anchor="${i===0?'start':i===2?'end':'middle'}" font-size="12" font-weight="600" fill="#15171c" font-family="${FK}">${t}</text>`; });
+  const path=p=>{ const dx=iw/2; let d=`M${X(0)} ${Y(p[0])}`; for(let i=1;i<3;i++) d+=` C${X(i-1)+dx/2} ${Y(p[i-1])} ${X(i)-dx/2} ${Y(p[i])} ${X(i)} ${Y(p[i])}`; return d; };
+  const dots=(p,c,o,top)=>p.map((v,i)=>{ const up = v>o[i] || (v===o[i] && top); const an=i===0?'start':i===2?'end':'middle';
+    return `<g class="dot" style="--i:${i}"><circle cx="${X(i)}" cy="${Y(v)}" r="4.5" fill="#fff" stroke="${c}" stroke-width="2.2"/><text x="${X(i)}" y="${up?Y(v)-10:Y(v)+19}" text-anchor="${an}" font-size="11" font-weight="600" fill="${textColor(c)}" font-family="${F}">${v.toFixed(1)}</text></g>`; }).join('');
+  g+=`<path class="line" pathLength="1" d="${path(pc)}" fill="none" stroke="${ca}" stroke-width="2.4" stroke-linecap="round"/>`;
+  g+=`<path class="line n" pathLength="1" d="${path(npc)}" fill="none" stroke="${cb}" stroke-width="2.4" stroke-linecap="round"/>`;
+  g+=dots(pc,ca,npc,true)+dots(npc,cb,pc,false);
+  return `<svg class="curve" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" preserveAspectRatio="xMidYMid meet" style="height:auto">${g}</svg>`;
+}
+function curvePts(d){
+  const base = clamp(firstNum(d.체온,36.5),34,42);
+  const c = nums(d.곡선).filter(n=>n>=30&&n<=45).map(n=>clamp(n,34,42));
+  while(c.length<3) c.push(c.length?c[c.length-1]:base);
+  return c.slice(0,3);
+}
+const sh = (no, ko, en) => `<div class="sh"><span class="no">${no}</span><h2>${ko}</h2><span class="en">${en}</span></div>`;
+
+/* ───────── 대표색 ───────── */
+const DEFAULT_COLORS = {pc:'#d2453b', npc:'#2f5aa8'};
+let aiColors = {...DEFAULT_COLORS};
+let colors = {...DEFAULT_COLORS};
+function normHex(v){
+  const m = String(v||'').match(/#?([0-9a-fA-F]{6}|[0-9a-fA-F]{3})(?![0-9a-fA-F])/);
+  if(!m) return null;
+  let h = m[1]; if(h.length===3) h = h.split('').map(c=>c+c).join('');
+  return '#'+h.toLowerCase();
+}
+const rgb = h => [1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
+const lum = ([r,g,b]) => { const f=c=>{c/=255;return c<=.03928?c/12.92:Math.pow((c+.055)/1.055,2.4)}; return .2126*f(r)+.7152*f(g)+.0722*f(b); };
+const contrast = h => 1.05/(lum(rgb(h))+.05);
+const toHex = a => '#'+a.map(x=>Math.round(clamp(x,0,255)).toString(16).padStart(2,'0')).join('');
+function darken(h, target){ let c=rgb(h); for(let i=0;i<30 && 1.05/(lum(c)+.05)<target;i++) c=c.map(x=>x*.92); return toHex(c); }
+const textColor = h => darken(h, 3.4);              // 글자용: 흰 바탕에서 읽히는 진하기
+const markColor = h => contrast(h)<1.6 ? darken(h,1.6) : h; // 그래프용: 너무 연하면 살짝만 진하게
+function colorVars(){
+  return `--pc:${markColor(colors.pc)};--pcT:${textColor(colors.pc)};--npc:${markColor(colors.npc)};--npcT:${textColor(colors.npc)}`;
+}
+
+/* ───────── 보고서 렌더 ───────── */
+let current = {pc:'', npc:'', text:''};
+function render(text, opt={}){
+  const {push=true, keepColors=false, instant=false} = opt;
+  const D = parse(text), P = D.PC, N = D.NPC, M = D.MATCH;
+  if(!P.이름 && !N.이름 && !P.유형 && !N.유형){
+    $('#err').textContent = '양식을 찾지 못했어요. [PC], [NPC] 머리말과 "이름:" 같은 항목이 들어 있는지 확인해 주세요.';
+    return false;
+  }
+  $('#err').textContent = '';
+  if(!P.이름) P.이름 = '이름 없음'; if(!N.이름) N.이름 = '이름 없음';
+  aiColors = {pc: normHex(P.대표색)||DEFAULT_COLORS.pc, npc: normHex(N.대표색)||DEFAULT_COLORS.npc};
+  if(!keepColors) colors = {...aiColors};
+  current = {pc:P.이름, npc:N.이름, text};
+  const pName = esc(P.이름), nName = esc(N.이름);
+  const now = new Date(), pad = n=>String(n).padStart(2,'0');
+  const docNo = `LT-${String(now.getFullYear()).slice(2)}${pad(now.getMonth()+1)}${pad(now.getDate())}-${hash(text)}`;
+  const issued = `${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())}`;
+  const mP = markColor(colors.pc), mN = markColor(colors.npc);
+
+  // 화면 순서: 왼쪽 NPC · 오른쪽 PC
+  const tP = typeOf(P.유형), tN = typeOf(N.유형);
+  const sP = AXES.map(([k])=>score(P[k]).n), sN = AXES.map(([k])=>score(N[k]).n);
+  const tA = clamp(firstNum(P.체온,36.5),34,42), tB = clamp(firstNum(N.체온,36.5),34,42);
+  const diff = Math.abs(tA-tB);
+  const diffLab = diff<=.5?'거의 같은 온도':diff<=1.5?'적당한 온도차':diff<=3?'뚜렷한 온도차':'극심한 온도차';
+  const hotter = tA===tB ? '두 사람의 체온이 같습니다' : `${tA>tB?pName:nName} 쪽이 더 뜨겁습니다`;
+  const gi = gradeIdx(M.등급); const G = gi>=0 ? GRADES[gi] : {name:M.등급||'판정 보류', en:'PENDING', color:'#6a707a'};
+  const legend = `<div class="legend"><span><i style="background:var(--npc)"></i>${nName}</span><span><i style="background:var(--pc)"></i>${pName}</span></div>`;
+  const head2 = first => `<thead><tr><th style="width:120px">${first}</th><th class="npcc">${nName}</th><th class="pcc">${pName}</th></tr></thead>`;
+
+  const axRows = AXES.map(([k,l],i)=>`<tr><th>${l}</th><td class="num npcc">${fmt(sN[i])}</td><td class="num pcc">${fmt(sP[i])}</td><td class="num">${fmt(Math.abs(sP[i]-sN[i]))}</td></tr>`).join('');
+  const ev = (d, who) => `<div class="ev" style="--role:var(--${who});--roleT:var(--${who}T)"><h4>${esc(d.이름)}</h4><ol>${(list(d.근거).length?list(d.근거):['기록 없음']).map((e,i)=>`<li style="--i:${i}" data-n="${pad(i+1)}">${esc(e)}</li>`).join('')}</ol></div>`;
+  const sym = [['애정표현','애정 표현'],['질투','질투할 때'],['싸울때','싸울 때'],['식는신호','식어갈 때 신호']]
+    .map(([k,l])=>`<tr><th>${l}</th><td>${esc(N[k]||'—')}</td><td>${esc(P[k]||'—')}</td></tr>`).join('');
+  const cdP = list(P.곡선설명), cdN = list(N.곡선설명);
+  const phase = [0,1,2].map(i=>`<tr><th>${['시작','중반','장기'][i]}</th><td>${esc(cdN[i]||'—')}</td><td>${esc(cdP[i]||'—')}</td></tr>`).join('');
+  const rx = (d, who) => `<div class="rx" style="--role:var(--${who});--roleT:var(--${who}T)"><h4>${esc(d.이름)}</h4>
+      <h5>온도를 올리는 법</h5><ul class="up">${(list(d.온도올리기).length?list(d.온도올리기):['—']).map(x=>`<li>${esc(x)}</li>`).join('')}</ul>
+      <h5>식게 만드는 지뢰</h5><ul class="dn">${(list(d.지뢰).length?list(d.지뢰):['—']).map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`;
+  const sumCell = (d, t, temp, who) => {
+    const sub = blank(d.부유형) ? null : typeOf(d.부유형);
+    return `<div style="--kc:var(--${who}T)"><div class="k"><span><b>${esc(d.이름)}</b> 판정</span></div>
+      <div class="v" style="color:${t?t.color:'inherit'}">${t?`${t.emoji} ${esc(t.key)}`:'미판정'}${sub&&t&&sub.key!==t.key?`<span class="plus">+ ${esc(sub.key)}</span>`:''}</div>
+      <div class="d">체온 <span class="mono">${temp.toFixed(1)}℃</span></div></div>`;
+  };
+
+  const sheet = $('#report');
+  sheet.setAttribute('style', colorVars());
+  sheet.innerHTML = `
+    <header class="rh reveal">
+      <div class="rh-top"><span class="tag">LOVE THERMOMETRY REPORT</span><span>${docNo}</span></div>
+      <h1>연애 온도 진단 보고서</h1>
+      <div class="en">RELATIONSHIP TEMPERATURE ANALYSIS</div>
+      <dl class="rh-meta">
+        <div class="span2"><dt>피검자</dt><dd><span class="a">${nName}</span><span class="x">×</span><span class="b">${pName}</span></dd></div>
+        <div><dt>발급일</dt><dd class="mono">${issued}</dd></div>
+        <div><dt>측정 항목</dt><dd>4축 · 체온 · 곡선</dd></div>
+      </dl>
+      <div class="summary">
+        ${sumCell(N, tN, tB, 'npc')}
+        <div><div class="k"><span>궁합</span></div><div class="v" style="color:${G.color}">${esc(G.name)}</div><div class="d">체온차 <span class="mono">${diff.toFixed(1)}℃</span> · ${diffLab}</div></div>
+        ${sumCell(P, tP, tA, 'pc')}
+      </div>
+    </header>
+
+    <section class="sec reveal">
+      ${sh('01','피검자 판정','SUBJECT VERDICT')}
+      <div class="g2">${subject(N,'npc')}${subject(P,'pc')}</div>
+    </section>
+
+    <section class="sec reveal">
+      ${sh('02','4축 비교','AXIS COMPARISON')}
+      <div class="cmpwrap">
+        ${radarSVG(sN, sP, mN, mP)}
+        <div>
+          ${legend}
+          <table class="tbl"><thead><tr><th>항목</th><th class="num npcc">${nName}</th><th class="num pcc">${pName}</th><th class="num">차이</th></tr></thead><tbody>${axRows}</tbody></table>
+          <p class="note">체온차 <b><span data-count="${diff}" data-from="0" data-dec="1">${diff.toFixed(1)}</span>℃</b>: ${diffLab}. ${hotter}.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec reveal">
+      ${sh('03','판정 근거','EVIDENCE')}
+      <div class="g2">${ev(N,'npc')}${ev(P,'pc')}</div>
+    </section>
+
+    <section class="sec reveal">
+      ${sh('04','사랑할 때 나타나는 증상','SYMPTOMS')}
+      <table class="tbl">${head2('구분')}<tbody>${sym}</tbody></table>
+    </section>
+
+    <section class="sec reveal">
+      ${sh('05','예상 연애 곡선','TEMPERATURE FORECAST')}
+      ${legend}
+      ${curveSVG(curvePts(N), curvePts(P), mN, mP)}
+      <table class="tbl" style="margin-top:16px">${head2('단계')}<tbody>${phase}</tbody></table>
+    </section>
+
+    <section class="sec reveal" style="--g:${G.color}">
+      ${sh('06','온도 궁합','COMPATIBILITY')}
+      <div class="gres"><b>${esc(G.name)}</b><span>${G.en}</span></div>
+      <div class="gscale">${GRADES.map((g,i)=>`<div class="seg${i===gi?' on':''}"></div>`).join('')}</div>
+      <div class="glabs">${GRADES.map((g,i)=>`<span class="${i===gi?'on':''}">${g.name}</span>`).join('')}</div>
+      ${M.코멘트?`<p class="quote">${esc(M.코멘트)}</p>`:''}
+      ${M.관계예보?`<dl class="kv"><dt>관계 예보</dt><dd>${esc(M.관계예보)}</dd></dl>`:''}
+    </section>
+
+    <section class="sec reveal">
+      ${sh('07','처방','PRESCRIPTION')}
+      <div class="g2">${rx(N,'npc')}${rx(P,'pc')}</div>
+    </section>
+
+    <footer class="rf reveal">
+      <span class="mono">${LAB_NAME} · ${docNo}</span>
+      <span>롤플레이 대화를 바탕으로 작성된 가상의 진단입니다.</span>
+      <span class="mono">${esc(CREDIT)}</span>
+    </footer>`;
+
+  syncColorUI();
+  $('#intake').hidden = true;
+  $('#reportWrap').hidden = false;
+  if(instant){ document.querySelectorAll('#report .reveal').forEach(e=>reveal(e,true)); }
+  else { window.scrollTo(0,0); armReveals(); }
+  if(push) saveState();
+  return true;
+}
+function syncColorUI(){
+  $('#cPc').value = colors.pc; $('#cNpc').value = colors.npc;
+  $('#nPc').textContent = current.pc; $('#nNpc').textContent = current.npc;
+  $('#nPc').style.color = textColor(colors.pc); $('#nNpc').style.color = textColor(colors.npc);
+  // 이름 순서도 보고서와 같게: 왼쪽 NPC, 오른쪽 PC
+}
+function saveState(){
+  const custom = colors.pc!==aiColors.pc || colors.npc!==aiColors.npc;
+  const c = custom ? `&c=${colors.pc.slice(1)}-${colors.npc.slice(1)}` : '';
+  try{ history.replaceState(null,'','#r='+b64e(current.text)+c); }catch{}
+  try{ localStorage.setItem('lt-last', current.text); }catch{}
+}
+
+/* ───────── 등장 애니메이션 ───────── */
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+if(reduce) document.documentElement.classList.add('final');
+let io;
+function countUp(el, instant){
+  const to=+el.dataset.count, from=+(el.dataset.from||0), dec=+(el.dataset.dec||0);
+  if(instant||reduce){ el._done=true; el.textContent=to.toFixed(dec); return; }
+  if(el._done) return; el._done = true;
+  const dur=1600, t0=performance.now()+300;
+  const tick=now=>{ if(el._stop) return; const p=clamp((now-t0)/dur,0,1), e=1-Math.pow(1-p,3); el.textContent=(from+(to-from)*e).toFixed(dec); if(p<1) requestAnimationFrame(tick); };
+  el.textContent=from.toFixed(dec); requestAnimationFrame(tick);
+}
+function reveal(el, instant){ el.classList.add('in'); el.querySelectorAll('[data-count]').forEach(c=>{ if(instant) c._stop=true; countUp(c,instant); }); }
+function armReveals(){
+  if(io) io.disconnect();
+  const els = document.querySelectorAll('#report .reveal');
+  if(reduce || !('IntersectionObserver' in window)){ els.forEach(e=>reveal(e,true)); return; }
+  io = new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ reveal(e.target); io.unobserve(e.target); } }),{threshold:.12});
+  els.forEach(e=>io.observe(e));
+}
+
+/* ───────── PNG 저장 ───────── */
+async function savePNG(){
+  const btn = $('#png');
+  if(typeof html2canvas !== 'function'){ toast('저장 도구를 불러오는 중이에요. 잠시 후 다시 눌러 주세요'); return; }
+  btn.disabled = true; btn.textContent = '저장 중…';
+  const root = document.documentElement;
+  root.classList.add('final','capture');
+  document.querySelectorAll('#report .reveal').forEach(e=>reveal(e,true));
+  try{
+    if(document.fonts && document.fonts.ready) await document.fonts.ready;
+    await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+    const canvas = await html2canvas($('#report'), {scale:2, backgroundColor:'#ffffff', useCORS:true, logging:false, windowWidth:1000});
+    const a = document.createElement('a');
+    a.download = `연애온도진단_${current.pc}_${current.npc}.png`.replace(/[\\/:*?"<>|]/g,'');
+    a.href = canvas.toDataURL('image/png');
+    document.body.appendChild(a); a.click(); a.remove();
+    toast('PNG로 저장했어요');
+  }catch(e){
+    console.error(e); toast('저장에 실패했어요. 다시 시도해 주세요');
+  }finally{
+    root.classList.remove('capture');
+    if(!reduce) root.classList.remove('final');
+    btn.disabled = false; btn.textContent = 'PNG로 저장';
+  }
+}
+
+/* ───────── 링크 공유 ───────── */
+function b64e(s){ const b=new TextEncoder().encode(s); let bin=''; b.forEach(x=>bin+=String.fromCharCode(x)); return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }
+function b64d(s){ s=s.replace(/-/g,'+').replace(/_/g,'/'); while(s.length%4) s+='='; const bin=atob(s); return new TextDecoder().decode(Uint8Array.from(bin,c=>c.charCodeAt(0))); }
+
+/* ───────── 이벤트 ───────── */
+$('#copyOoc').onclick = async()=>{ await copy($('#oocText').textContent); toast('OOC를 복사했어요'); };
+$('#go').onclick = ()=>render($('#input').value);
+$('#back').onclick = ()=>{ $('#reportWrap').hidden = true; $('#intake').hidden = false; try{ history.replaceState(null,'',location.pathname+location.search); }catch{} window.scrollTo(0,0); };
+$('#share').onclick = async()=>{ await copy(location.href); toast('결과 링크를 복사했어요'); };
+$('#png').onclick = savePNG;
+
+let colorRAF = 0;
+function onColor(){
+  colors = {pc:$('#cPc').value, npc:$('#cNpc').value};
+  cancelAnimationFrame(colorRAF);
+  colorRAF = requestAnimationFrame(()=>render(current.text, {keepColors:true, instant:true}));
+}
+$('#cPc').addEventListener('input', onColor);
+$('#cNpc').addEventListener('input', onColor);
+$('#cReset').onclick = ()=>{ colors = {...aiColors}; render(current.text, {keepColors:true, instant:true}); toast('원래 색으로 되돌렸어요'); };
+
+(function init(){
+  const m = location.hash.match(/r=([^&]+)/);
+  if(m){
+    try{
+      const t = b64d(m[1]); $('#input').value = t;
+      const c = location.hash.match(/c=([0-9a-fA-F]{6})-([0-9a-fA-F]{6})/);
+      if(render(t, {push:false})){
+        if(c){ colors = {pc:'#'+c[1].toLowerCase(), npc:'#'+c[2].toLowerCase()}; render(t, {push:false, keepColors:true, instant:true}); }
+        return;
+      }
+    }catch{}
+  }
+  try{ const last=localStorage.getItem('lt-last'); if(last) $('#input').value=last; }catch{}
+})();
+</script>
+</body>
+</html>
