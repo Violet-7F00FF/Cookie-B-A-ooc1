@@ -134,11 +134,11 @@ textarea:focus{outline:none;border-color:var(--ink)}
 
 .tblk{margin-top:20px;padding:16px 0 0;border-top:1px solid var(--line2)}
 .tscalewrap{padding-bottom:4px}
-.trow{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.trow{display:block}
 .tlab{font-size:12px;color:var(--sub)}
 .tval{font-family:var(--mono);font-size:30px;font-weight:600;color:var(--c);letter-spacing:-.02em;line-height:1.1}
 .tval small{font-size:15px;margin-left:1px}
-.tstate{font-size:12px;color:var(--sub);text-align:right}
+.tstate{font-size:12.5px;color:var(--sub);text-align:left;margin-top:6px}
 .tscale{position:relative;height:8px;margin-top:12px;display:flex;border-radius:4px;overflow:visible}
 .tscale span{height:100%}
 .tscale span:first-child{border-radius:4px 0 0 4px}
@@ -222,6 +222,13 @@ table{width:100%;border-collapse:collapse}
 
 /* rx */
 .rx ul{list-style:none}
+.rxg{display:grid;grid-template-columns:1fr 1fr;column-gap:40px}
+@supports (grid-template-rows:subgrid){
+  .rxg .rx{display:grid;grid-template-rows:subgrid;row-gap:0}
+  .rxg .rx ul{display:contents}
+}
+.rx li.blank{border-bottom:none}
+.rx ul li.blank::before{content:none}
 .rx li{font-size:13.5px;padding:7px 0 7px 22px;position:relative;border-bottom:1px solid var(--line2)}
 .rx li::before{position:absolute;left:2px;font-family:var(--mono);font-weight:600}
 .rx .up li::before{content:'+';color:var(--roleT)}
@@ -239,7 +246,8 @@ table{width:100%;border-collapse:collapse}
   .sheet{padding:32px 22px 28px}
   .g2,.cmpwrap,.summary,.subjects{grid-template-columns:1fr;gap:28px}
   .subjects{row-gap:0}
-  .evg{grid-template-columns:1fr}
+  .evg,.rxg{grid-template-columns:1fr}
+  .rxg .rx+.rx h4{margin-top:28px}
   .evg .ev+.ev h4{margin-top:28px}
   .subj+.subj .subj-h{margin-top:36px}
   .summary{gap:0} .summary>div+div{border-left:none;border-top:1px solid var(--line)}
@@ -257,7 +265,8 @@ html.capture .sheet{width:880px;padding:56px 56px 36px;border:none;border-radius
 html.capture .g2{grid-template-columns:1fr 1fr;gap:40px}
 html.capture .subjects{grid-template-columns:1fr 1fr;column-gap:40px}
 html.capture .subj+.subj .subj-h{margin-top:0}
-html.capture .evg{grid-template-columns:1fr 1fr}
+html.capture .evg,html.capture .rxg{grid-template-columns:1fr 1fr}
+html.capture .rxg .rx+.rx h4{margin-top:0}
 html.capture .evg .ev+.ev h4{margin-top:0}
 html.capture .cmpwrap{grid-template-columns:280px 1fr;gap:40px}
 html.capture .summary{grid-template-columns:1fr 1fr 1fr}
@@ -589,9 +598,13 @@ function render(text, opt={}){
     .map(([k,l])=>`<tr><th>${l}</th><td>${esc(N[k]||'—')}</td><td>${esc(P[k]||'—')}</td></tr>`).join('');
   const cdP = list(P.곡선설명), cdN = list(N.곡선설명);
   const phase = [0,1,2].map(i=>`<tr><th>${['시작','중반','장기'][i]}</th><td>${esc(cdN[i]||'—')}</td><td>${esc(cdP[i]||'—')}</td></tr>`).join('');
-  const rx = (d, who) => `<div class="rx" style="--role:var(--${who});--roleT:var(--${who}T)"><h4>${esc(d.이름)}</h4>
-      <h5>온도를 올리는 법</h5><ul class="up">${(list(d.온도올리기).length?list(d.온도올리기):['—']).map(x=>`<li>${esc(x)}</li>`).join('')}</ul>
-      <h5>식게 만드는 지뢰</h5><ul class="dn">${(list(d.지뢰).length?list(d.지뢰):['—']).map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`;
+  const items = v => list(v).length ? list(v) : ['—'];
+  const upN = items(N.온도올리기), upP = items(P.온도올리기), dnN = items(N.지뢰), dnP = items(P.지뢰);
+  const upMax = Math.max(upN.length, upP.length), dnMax = Math.max(dnN.length, dnP.length);
+  const lis = (arr, max) => arr.map(x=>`<li>${esc(x)}</li>`).join('') + Array.from({length:max-arr.length},()=>'<li class="blank" aria-hidden="true"></li>').join('');
+  const rx = (d, who, up, dn) => `<div class="rx" style="--role:var(--${who});--roleT:var(--${who}T);grid-row:span ${upMax+dnMax+3}"><h4>${esc(d.이름)}</h4>
+      <h5>온도를 올리는 법</h5><ul class="up">${lis(up, upMax)}</ul>
+      <h5>식게 만드는 지뢰</h5><ul class="dn">${lis(dn, dnMax)}</ul></div>`;
   const sumCell = (d, t, temp, who) => {
     const sub = blank(d.부유형) ? null : typeOf(d.부유형);
     return `<div style="--kc:var(--${who}T)"><div class="k"><span><b>${esc(d.이름)}</b> 판정</span></div>
@@ -663,7 +676,7 @@ function render(text, opt={}){
 
     <section class="sec reveal">
       ${sh('07','처방','PRESCRIPTION')}
-      <div class="g2">${rx(N,'npc')}${rx(P,'pc')}</div>
+      <div class="rxg">${rx(N,'npc',upN,dnN)}${rx(P,'pc',upP,dnP)}</div>
     </section>
 
     <footer class="rf reveal">
