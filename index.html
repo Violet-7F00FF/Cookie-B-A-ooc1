@@ -547,8 +547,8 @@ const lum = ([r,g,b]) => { const f=c=>{c/=255;return c<=.03928?c/12.92:Math.pow(
 const contrast = h => 1.05/(lum(rgb(h))+.05);
 const toHex = a => '#'+a.map(x=>Math.round(clamp(x,0,255)).toString(16).padStart(2,'0')).join('');
 function darken(h, target){ let c=rgb(h); for(let i=0;i<30 && 1.05/(lum(c)+.05)<target;i++) c=c.map(x=>x*.92); return toHex(c); }
-const textColor = h => contrast(h)<1.9 ? darken(h,1.9) : h; // 글자용: 고른 색 그대로, 거의 흰색일 때만 살짝 진하게
-const markColor = h => contrast(h)<1.6 ? darken(h,1.6) : h; // 그래프용: 너무 연하면 살짝만 진하게
+const textColor = h => h; // 고른 색 그대로
+const markColor = h => h; // 고른 색 그대로
 function colorVars(){
   return `--pc:${markColor(colors.pc)};--pcT:${textColor(colors.pc)};--npc:${markColor(colors.npc)};--npcT:${textColor(colors.npc)}`;
 }
